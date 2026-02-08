@@ -10,13 +10,13 @@ class AppointmentAdmin(admin.ModelAdmin):
     ordering = ('-appointment_date', '-appointment_time')
     
     fieldsets = (
-        ('معلومات الطالب', {
+        ('اطلاعات دانشجو', {
             'fields': ('name', 'phone', 'degree')
         }),
-        ('تفاصيل الموعد', {
+        ('جزئیات نوبت', {
             'fields': ('appointment_date', 'appointment_time', 'duration')
         }),
-        ('تفاصيل الاستشارة', {
+        ('جزئیات مشاوره', {
             'fields': ('reason', 'created_at', 'is_archived')
         }),
     )
@@ -30,10 +30,10 @@ class MonthlyReportAdmin(admin.ModelAdmin):
     ordering = ('-month',)
     
     fieldsets = (
-        ('معلومات التقرير', {
+        ('اطلاعات گزارش', {
             'fields': ('month', 'total_appointments', 'master_count', 'phd_count')
         }),
-        ('بيانات الأوقات', {
+        ('داده‌های زمانی', {
             'fields': ('time_slot_data', 'created_at')
         }),
     )
@@ -47,10 +47,10 @@ class DailyArchiveAdmin(admin.ModelAdmin):
     ordering = ('-archive_date',)
     
     fieldsets = (
-        ('معلومات الأرشيف', {
+        ('اطلاعات بایگانی', {
             'fields': ('archive_date', 'total_count', 'created_at')
         }),
-        ('البيانات', {
+        ('داده‌ها', {
             'fields': ('appointments_data',)
         }),
     )
