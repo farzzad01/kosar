@@ -2,5 +2,5 @@
 # exit on error
 set -o errexit
 
-pip install -r requirements.txt
+pip install --break-system-packages -r requirements.txt
 python manage.py collectstatic --no-input --clear

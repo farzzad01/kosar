@@ -3,108 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام حجز المواعيد - الدكتور تقي زاده</title>
+    <title>نظام حجز المواعيد - الدكتور محسن</title>
     {% load static %}
     {% load appointment_filters %}
     <script src="{% static 'libs/tailwindcss.js' %}"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Tajawal', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
         }
+        
+        .academic-card {
+            background: white;
+            border: 1px solid #d4af37;
+            box-shadow: 0 8px 24px rgba(212, 175, 55, 0.15);
+        }
+        
+        .gold-accent {
+            color: #d4af37;
+        }
+        
+        .gold-bg {
+            background: linear-gradient(135deg, #d4af37 0%, #c9a961 100%);
+        }
+        
+        .input-field {
+            border: 2px solid #e0e0e0;
+            background: #fafafa;
+            transition: all 0.3s ease;
+            font-size: 15px;
+            padding: 14px 16px;
+        }
+        
+        .input-field:focus {
+            border-color: #d4af37;
+            background: white;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+        }
+        
         .time-slot {
             cursor: pointer;
             transition: all 0.3s ease;
+            background: white;
+            border: 2px solid #e0e0e0;
         }
+        
         .time-slot:hover {
+            border-color: #d4af37;
             transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
         }
+        
         .time-slot.selected {
-            background-color: #10b981 !important;
-            color: white !important;
-            border-color: #10b981 !important;
+            background: linear-gradient(135deg, #d4af37 0%, #c9a961 100%);
+            color: white;
+            border-color: #d4af37;
         }
+        
         .time-slot.selected .count-text {
-            color: white !important;
+            color: white;
+        }
+        
+        .minute-slot {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .minute-slot:hover:not(.occupied) {
+            border-color: #d4af37;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2);
+        }
+        
+        .minute-slot.selected {
+            background: linear-gradient(135deg, #d4af37 0%, #c9a961 100%);
+            color: white;
+            border-color: #d4af37;
+        }
+        
+        .minute-slot.occupied {
+            background: #9e9e9e;
+            color: white;
+            cursor: not-allowed;
+            opacity: 0.6;
+            border-color: #757575;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 2px solid #d4af37;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #d4af37 0%, #c9a961 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.4);
+        }
+        
+        .header-decoration {
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #d4af37 0%, #c9a961 100%);
+            margin: 0 auto;
+        }
+        
+        .success-message {
+            background: linear-gradient(135deg, #d4af37 0%, #c9a961 100%);
+            border: none;
+        }
+        
+        label {
+            color: #424242;
+            font-weight: 500;
+            font-size: 15px;
+        }
+        
+        select.input-field {
+            cursor: pointer;
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
-    <div class="max-w-3xl mx-auto mt-8 px-4 py-6">
+<body class="min-h-screen py-8">
+    <div class="max-w-4xl mx-auto px-4 py-6">
         <!-- Header -->
-        <div class="text-center mb-8">
-            <h1 class="text-5xl font-bold text-indigo-800 mb-3">الدكتور تقي زاده</h1>
-            <p class="text-xl text-gray-700 mb-2">استشارات أكاديمية في القانون</p>
-            <p class="text-lg text-gray-600">الماجستير والدكتوراه</p>
+        <div class="text-center mb-10">
+            <div class="mb-4">
+                <h1 class="text-5xl font-bold text-gray-800 mb-2">الدكتور محسن</h1>
+                <div class="header-decoration"></div>
+            </div>
+            <p class="text-xl text-gray-700 mb-2 font-medium">استشارات أكاديمية متخصصة في القانون</p>
+            <p class="text-lg text-gray-600">برامج الماجستير والدكتوراه</p>
         </div>
 
         <!-- Success Message -->
         {% if messages %}
             {% for message in messages %}
-                <div class="bg-green-100 border-r-4 border-green-500 text-green-800 px-6 py-4 rounded-lg mb-6 text-center shadow-md">
-                    <p class="font-semibold text-lg">{{ message }}</p>
+                <div class="success-message text-white px-8 py-5 rounded-xl mb-8 text-center shadow-lg">
+                    <p class="font-semibold text-xl">تم حجز موعدك بنجاح! في انتظار حضورك</p>
                 </div>
             {% endfor %}
         {% endif %}
 
         <!-- Form Card -->
-        <div class="bg-white shadow-2xl rounded-2xl p-8 border-t-4 border-indigo-600">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">حجز موعد استشارة</h2>
+        <div class="academic-card rounded-2xl p-10">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">نموذج حجز الاستشارة</h2>
+                <p class="text-gray-600">يرجى ملء جميع الحقول المطلوبة</p>
+            </div>
             
-            <form method="post" id="appointmentForm" class="space-y-5">
+            <form method="post" id="appointmentForm" class="space-y-6">
                 {% csrf_token %}
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-gray-700 font-semibold mb-2">الاسم الكامل</label>
-                        {{ form.name }}
+                        <label class="block mb-3">الاسم الكامل <span class="gold-accent">*</span></label>
+                        <input type="text" name="name" required 
+                            class="input-field w-full rounded-lg"
+                            placeholder="أدخل اسمك الكامل">
                     </div>
 
                     <div>
-                        <label class="block text-gray-700 font-semibold mb-2">رقم الهاتف</label>
-                        {{ form.phone }}
+                        <label class="block mb-3">رقم الهاتف <span class="gold-accent">*</span></label>
+                        <input type="tel" name="phone" required 
+                            class="input-field w-full rounded-lg"
+                            placeholder="أدخل رقم هاتفك">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-gray-700 font-semibold mb-2">المرحلة الدراسية</label>
-                    {{ form.degree }}
+                    <label class="block mb-3">المرحلة الدراسية <span class="gold-accent">*</span></label>
+                    <select name="degree" required class="input-field w-full rounded-lg">
+                        <option value="">اختر المرحلة الدراسية</option>
+                        <option value="master">ماجستير</option>
+                        <option value="phd">دكتوراه</option>
+                    </select>
                 </div>
 
                 <div>
-                    <label class="block text-gray-700 font-semibold mb-2">تاريخ الموعد</label>
-                    {{ form.appointment_date }}
+                    <label class="block mb-3">تاريخ الموعد <span class="gold-accent">*</span></label>
+                    <input type="date" name="appointment_date" required 
+                        class="input-field w-full rounded-lg">
                 </div>
 
                 <div>
-                    <label class="block text-gray-700 font-semibold mb-3">ساعة الحضور (7 مساءً - 12 منتصف الليل)</label>
+                    <label class="block mb-4">اختر الساعة <span class="gold-accent">*</span></label>
+                    <p class="text-sm text-gray-600 mb-4">الأوقات المتاحة: من 7 مساءً حتى 12 منتصف الليل</p>
                     <input type="hidden" name="appointment_time" id="selectedTime" required>
-                    <div class="grid grid-cols-3 md:grid-cols-6 gap-3">
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                         {% for time, label in time_slots %}
-                        <div class="time-slot bg-white border-2 border-gray-300 rounded-lg p-3 text-center" data-time="{{ time }}">
-                            <div class="font-bold text-gray-700 text-base">{{ time }}</div>
-                            <div class="text-xs text-gray-500 mt-1">{{ label }}</div>
-                            <div class="count-text text-indigo-600 font-bold text-sm mt-2">
-                                {{ time_counts|get_item:time }} حجز
+                        <div class="time-slot rounded-xl p-4 text-center" data-time="{{ time }}">
+                            <div class="font-bold text-gray-800 text-lg mb-1">{{ time }}</div>
+                            <div class="text-sm text-gray-600 mb-2">{{ label }}</div>
+                            <div class="count-text gold-accent font-bold text-sm">
+                                {{ time_counts|get_item:time }}/6 محجوز
                             </div>
                         </div>
                         {% endfor %}
                     </div>
-                    <p id="timeError" class="text-red-500 text-sm mt-2 hidden">الرجاء اختيار ساعة الحضور</p>
+                    <p id="timeError" class="text-red-600 text-sm mt-3 hidden">⚠ الرجاء اختيار وقت الحضور</p>
                 </div>
 
                 <div>
-                    <label class="block text-gray-700 font-semibold mb-2">دليل المراجعة</label>
-                    {{ form.reason }}
+                    <label class="block mb-3">موضوع الاستشارة <span class="gold-accent">*</span></label>
+                    <textarea name="reason" required rows="4"
+                        class="input-field w-full rounded-lg resize-none"
+                        placeholder="اشرح بإيجاز موضوع الاستشارة المطلوبة"></textarea>
                 </div>
 
                 <div>
-                    <label class="block text-gray-700 font-semibold mb-2">مدة الحضور المتوقعة</label>
-                    {{ form.duration }}
+                    <label class="block mb-3">المدة المتوقعة للاستشارة <span class="gold-accent">*</span></label>
+                    <input type="text" name="duration" required 
+                        class="input-field w-full rounded-lg"
+                        placeholder="مثال: 30 دقيقة">
                 </div>
 
                 <button type="submit" 
-                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-lg transition duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    class="submit-btn w-full text-white font-bold py-4 rounded-xl text-lg shadow-lg">
                     تأكيد الحجز
                 </button>
             </form>
@@ -112,7 +260,24 @@
 
         <!-- Footer -->
         <div class="text-center mt-8 text-gray-600">
-            <p class="text-sm">سيتم التواصل معك لتأكيد الموعد</p>
+            <p class="text-sm">سيتم التواصل معك لتأكيد الموعد خلال 24 ساعة</p>
+        </div>
+    </div>
+
+    <!-- Modal for minute selection -->
+    <div id="minuteModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-800">اختر الوقت المحدد</h3>
+                    <p class="text-gray-600 mt-2">الساعة: <span id="selectedHour" class="gold-accent font-bold text-lg"></span></p>
+                </div>
+                <button type="button" id="closeModal" class="text-gray-500 hover:text-gray-700 text-4xl leading-none">&times;</button>
+            </div>
+            <p class="text-sm text-gray-600 mb-4">اختر الوقت المناسب (كل فترة 10 دقائق)</p>
+            <div class="grid grid-cols-3 gap-4" id="minuteSlots">
+                <!-- Will be populated by JavaScript -->
+            </div>
         </div>
     </div>
 
@@ -121,21 +286,89 @@
         const timeSlots = document.querySelectorAll('.time-slot');
         const selectedTimeInput = document.getElementById('selectedTime');
         const timeError = document.getElementById('timeError');
+        const modal = document.getElementById('minuteModal');
+        const closeModalBtn = document.getElementById('closeModal');
+        const selectedHourSpan = document.getElementById('selectedHour');
+        const minuteSlotsContainer = document.getElementById('minuteSlots');
+
+        let currentSelectedHour = '';
+
+        // Generate minute slots (00, 10, 20, 30, 40, 50)
+        const minuteSlots = ['00', '10', '20', '30', '40', '50'];
 
         timeSlots.forEach(slot => {
             slot.addEventListener('click', function() {
-                // Remove selected class from all slots
-                timeSlots.forEach(s => s.classList.remove('selected'));
+                const hour = this.getAttribute('data-time');
+                currentSelectedHour = hour;
+                selectedHourSpan.textContent = hour;
                 
-                // Add selected class to clicked slot
-                this.classList.add('selected');
+                // Clear previous minute slots
+                minuteSlotsContainer.innerHTML = '';
                 
-                // Set the hidden input value
-                selectedTimeInput.value = this.getAttribute('data-time');
+                // Create minute slots
+                minuteSlots.forEach(minute => {
+                    const timeValue = `${hour.split(':')[0]}:${minute}`;
+                    const div = document.createElement('div');
+                    div.className = 'minute-slot rounded-xl p-5 text-center';
+                    div.setAttribute('data-time', timeValue);
+                    
+                    // Check if this slot is occupied
+                    const isOccupied = false; // Replace with actual check from backend
+                    
+                    if (isOccupied) {
+                        div.classList.add('occupied');
+                        div.innerHTML = `
+                            <div class="font-bold text-lg mb-1">${timeValue}</div>
+                            <div class="text-xs mt-1">محجوز</div>
+                        `;
+                    } else {
+                        div.innerHTML = `
+                            <div class="font-bold text-gray-800 text-lg mb-1">${timeValue}</div>
+                            <div class="text-xs text-gray-600 mt-1">متاح</div>
+                        `;
+                        
+                        div.addEventListener('click', function() {
+                            if (!this.classList.contains('occupied')) {
+                                // Remove selected class from all minute slots
+                                document.querySelectorAll('.minute-slot').forEach(s => s.classList.remove('selected'));
+                                
+                                // Add selected class to clicked slot
+                                this.classList.add('selected');
+                                
+                                // Set the hidden input value
+                                selectedTimeInput.value = this.getAttribute('data-time');
+                                
+                                // Update main time slot display
+                                timeSlots.forEach(s => s.classList.remove('selected'));
+                                slot.classList.add('selected');
+                                
+                                // Hide error message
+                                timeError.classList.add('hidden');
+                                
+                                // Close modal
+                                modal.classList.remove('active');
+                            }
+                        });
+                    }
+                    
+                    minuteSlotsContainer.appendChild(div);
+                });
                 
-                // Hide error message
-                timeError.classList.add('hidden');
+                // Show modal
+                modal.classList.add('active');
             });
+        });
+
+        // Close modal
+        closeModalBtn.addEventListener('click', function() {
+            modal.classList.remove('active');
+        });
+
+        // Close modal when clicking outside
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
         });
 
         // Form validation
