@@ -19,7 +19,7 @@ class Appointment(models.Model):
     phone = models.CharField(max_length=20, verbose_name="شماره تلفن")
     degree = models.CharField(max_length=10, choices=DEGREE_CHOICES, verbose_name="مقطع تحصیلی")
     appointment_date = models.DateField(verbose_name="تاریخ نوبت")
-    appointment_time = models.CharField(max_length=5, choices=TIME_CHOICES, verbose_name="ساعت حضور")
+    appointment_time = models.CharField(max_length=10, verbose_name="ساعت حضور")
     reason = models.TextField(verbose_name="دلیل مراجعه")
     duration = models.CharField(max_length=50, verbose_name="مدت حضور")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ثبت")
