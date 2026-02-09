@@ -17,7 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+# تنظیمات پنل ادمین
+admin.site.site_header = "پنل مدیریت نوبت‌دهی"
+admin.site.site_title = "مدیریت"
+admin.site.index_title = "خوش آمدید"
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('secret-admin-panel-xyz/', admin.site.urls),  # URL سفارشی برای امنیت
     path('', include('appointments.urls')),
 ]
