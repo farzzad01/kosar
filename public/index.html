@@ -333,7 +333,7 @@
             if (e.target === modal) modal.classList.remove('active');
         });
 
-        document.getElementById('appointmentForm').addEventListener('submit', function(e) {
+        document.getElementById('appointmentForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             if (!selectedTimeInput.value) {
@@ -342,11 +342,41 @@
                 return;
             }
 
-            document.getElementById('successMessage').classList.remove('hidden');
-            this.reset();
-            timeSlots.forEach(s => s.classList.remove('selected'));
-            selectedTimeInput.value = '';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // جمع‌آوری داده‌های فرم
+            const formData = {
+                name: this.name.value,
+                phone: this.phone.value,
+                degree: this.degree.value,
+                appointment_date: this.appointment_date.value,
+                appointment_time: selectedTimeInput.value,
+                reason: this.reason.value,
+                duration: this.duration.value
+            };
+
+            try {
+                // ارسال به API
+                const response = await fetch('/api/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('successMessage').classList.remove('hidden');
+                    this.reset();
+                    timeSlots.forEach(s => s.classList.remove('selected'));
+                    selectedTimeInput.value = '';
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    alert('خطأ في الحجز: ' + result.error);
+                }
+            } catch (error) {
+                alert('خطأ في الاتصال: ' + error.message);
+            }
         });
     </script>
 </body>

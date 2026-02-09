@@ -7,3 +7,6 @@ staticfiles/
 *.log
 .DS_Store
 .vercel
+*.json
+!vercel.json
+!package.json
