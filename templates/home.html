@@ -290,17 +290,41 @@
         const closeModalBtn = document.getElementById('closeModal');
         const selectedHourSpan = document.getElementById('selectedHour');
         const minuteSlotsContainer = document.getElementById('minuteSlots');
+        const dateInput = document.querySelector('input[name="appointment_date"]');
 
         let currentSelectedHour = '';
+        let occupiedSlots = [];
 
         // Generate minute slots (00, 10, 20, 30, 40, 50)
         const minuteSlots = ['00', '10', '20', '30', '40', '50'];
 
+        // Fetch occupied slots from server
+        async function fetchOccupiedSlots(date, hour) {
+            try {
+                const response = await fetch(`/get-occupied-slots/?date=${date}&hour=${hour.split(':')[0]}`);
+                const data = await response.json();
+                return data.occupied || [];
+            } catch (error) {
+                console.error('Error fetching occupied slots:', error);
+                return [];
+            }
+        }
+
         timeSlots.forEach(slot => {
-            slot.addEventListener('click', function() {
+            slot.addEventListener('click', async function() {
+                const selectedDate = dateInput.value;
+                if (!selectedDate) {
+                    alert('الرجاء اختيار التاريخ أولاً');
+                    dateInput.focus();
+                    return;
+                }
+
                 const hour = this.getAttribute('data-time');
                 currentSelectedHour = hour;
                 selectedHourSpan.textContent = hour;
+                
+                // Fetch occupied slots for this date and hour
+                occupiedSlots = await fetchOccupiedSlots(selectedDate, hour);
                 
                 // Clear previous minute slots
                 minuteSlotsContainer.innerHTML = '';
@@ -313,7 +337,7 @@
                     div.setAttribute('data-time', timeValue);
                     
                     // Check if this slot is occupied
-                    const isOccupied = false; // Replace with actual check from backend
+                    const isOccupied = occupiedSlots.includes(timeValue);
                     
                     if (isOccupied) {
                         div.classList.add('occupied');
