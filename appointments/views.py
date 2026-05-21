@@ -1,21 +1,19 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 from .models import StudentRegistration
 from .google_sheets_service import GoogleSheetsService
 from datetime import datetime
+import traceback
 
 def registration(request):
     """Registration form page"""
     return render(request, 'registration.html')
 
 
-@csrf_exempt
+@require_http_methods(["POST"])
 def submit_registration(request):
     """Handle registration form submission"""
-    if request.method != 'POST':
-        return JsonResponse({'error': 'Method not allowed'}, status=405)
-    
     try:
         # Get form data
         name = request.POST.get('name', '')
@@ -27,6 +25,8 @@ def submit_registration(request):
         master_university = request.POST.get('master_university', '')
         phone = request.POST.get('phone', '')
         
+        print(f"Received data: {name}, {degree}, {phone}")  # Debug
+        
         # Get uploaded files
         passport = request.FILES.get('passport')
         bachelor_cert = request.FILES.get('bachelor_cert')
@@ -35,24 +35,9 @@ def submit_registration(request):
         master_transcript = request.FILES.get('master_transcript')
         filled_form = request.FILES.get('filled_form')
         
-        # Initialize Google Sheets service
-        sheets_service = GoogleSheetsService()
+        print(f"Files received: passport={passport}, bachelor_cert={bachelor_cert}")  # Debug
         
-        # Upload files and get URLs (placeholder for now)
-        file_urls = {}
-        if passport:
-            file_urls['passport_url'] = sheets_service.upload_to_drive(passport, f"passport_{name}")
-        if bachelor_cert:
-            file_urls['bachelor_cert_url'] = sheets_service.upload_to_drive(bachelor_cert, f"bachelor_cert_{name}")
-        if master_cert:
-            file_urls['master_cert_url'] = sheets_service.upload_to_drive(master_cert, f"master_cert_{name}")
-        if bachelor_transcript:
-            file_urls['bachelor_transcript_url'] = sheets_service.upload_to_drive(bachelor_transcript, f"bachelor_transcript_{name}")
-        if master_transcript:
-            file_urls['master_transcript_url'] = sheets_service.upload_to_drive(master_transcript, f"master_transcript_{name}")
-        if filled_form:
-            file_urls['filled_form_url'] = sheets_service.upload_to_drive(filled_form, f"filled_form_{name}")
-        
+        # For now, save to database without Google Sheets (for testing)
         # Create database record
         registration = StudentRegistration.objects.create(
             name=name,
@@ -63,34 +48,15 @@ def submit_registration(request):
             bachelor_university=bachelor_university,
             master_university=master_university,
             phone=phone,
-            **file_urls
+            passport_url=f"File: {passport.name if passport else 'None'}",
+            bachelor_cert_url=f"File: {bachelor_cert.name if bachelor_cert else 'None'}",
+            master_cert_url=f"File: {master_cert.name if master_cert else 'None'}",
+            bachelor_transcript_url=f"File: {bachelor_transcript.name if bachelor_transcript else 'None'}",
+            master_transcript_url=f"File: {master_transcript.name if master_transcript else 'None'}",
+            filled_form_url=f"File: {filled_form.name if filled_form else 'None'}"
         )
         
-        # Prepare data for Google Sheets
-        degree_display = 'ماجستير' if degree == 'master' else 'دكتوراه'
-        row_data = [
-            str(registration.id),
-            name,
-            passport_name,
-            degree_display,
-            major,
-            university_type,
-            bachelor_university,
-            master_university,
-            phone,
-            file_urls.get('passport_url', ''),
-            file_urls.get('bachelor_cert_url', ''),
-            file_urls.get('master_cert_url', ''),
-            file_urls.get('bachelor_transcript_url', ''),
-            file_urls.get('master_transcript_url', ''),
-            file_urls.get('filled_form_url', ''),
-            datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        ]
-        
-        # Add to Google Sheets
-        row_number = sheets_service.add_row(row_data)
-        registration.google_sheet_row = row_number
-        registration.save()
+        print(f"Registration created with ID: {registration.id}")  # Debug
         
         return JsonResponse({
             'success': True,
@@ -100,6 +66,7 @@ def submit_registration(request):
         
     except Exception as e:
         print(f"Error in submit_registration: {str(e)}")
+        print(traceback.format_exc())
         return JsonResponse({
             'success': False,
             'error': str(e)
