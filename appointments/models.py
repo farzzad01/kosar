@@ -1,66 +1,42 @@
 from django.db import models
 
-class Appointment(models.Model):
+class StudentRegistration(models.Model):
     DEGREE_CHOICES = [
-        ('master', 'کارشناسی ارشد'),
-        ('phd', 'دکترا'),
+        ('master', 'ماجستير'),
+        ('phd', 'دكتوراه'),
     ]
     
-    TIME_CHOICES = [
-        ('19:00', '19:00 - 7 عصر'),
-        ('20:00', '20:00 - 8 شب'),
-        ('21:00', '21:00 - 9 شب'),
-        ('22:00', '22:00 - 10 شب'),
-        ('23:00', '23:00 - 11 شب'),
-        ('00:00', '00:00 - 12 نیمه شب'),
+    UNIVERSITY_TYPE_CHOICES = [
+        ('نفقة خاصة', 'نفقة خاصة'),
+        ('ابتعاث', 'ابتعاث'),
     ]
     
-    name = models.CharField(max_length=100, verbose_name="نام کامل")
-    phone = models.CharField(max_length=20, verbose_name="شماره تلفن")
-    degree = models.CharField(max_length=10, choices=DEGREE_CHOICES, verbose_name="مقطع تحصیلی")
-    appointment_date = models.DateField(verbose_name="تاریخ نوبت")
-    appointment_time = models.CharField(max_length=10, verbose_name="ساعت حضور")
-    reason = models.TextField(verbose_name="دلیل مراجعه")
-    duration = models.CharField(max_length=50, verbose_name="مدت حضور")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ثبت")
-    is_archived = models.BooleanField(default=False, verbose_name="بایگانی شده")
-
+    # Basic Information
+    name = models.CharField(max_length=200, verbose_name="الاسم")
+    passport_name = models.CharField(max_length=200, verbose_name="الاسم بحسب الجواز")
+    degree = models.CharField(max_length=10, choices=DEGREE_CHOICES, verbose_name="المقطع")
+    major = models.CharField(max_length=200, verbose_name="التخصص")
+    university_type = models.CharField(max_length=50, choices=UNIVERSITY_TYPE_CHOICES, verbose_name="نوع الجامعة")
+    bachelor_university = models.CharField(max_length=200, verbose_name="جامعة البكالوريوس")
+    master_university = models.CharField(max_length=200, blank=True, null=True, verbose_name="جامعة الماجستير")
+    phone = models.CharField(max_length=30, verbose_name="رقم الهاتف")
+    
+    # File URLs (stored in Google Drive)
+    passport_url = models.URLField(blank=True, null=True, verbose_name="رابط جواز السفر")
+    bachelor_cert_url = models.URLField(blank=True, null=True, verbose_name="رابط شهادة البكالوريوس")
+    master_cert_url = models.URLField(blank=True, null=True, verbose_name="رابط شهادة الماجستير")
+    bachelor_transcript_url = models.URLField(blank=True, null=True, verbose_name="رابط كشف درجات البكالوريوس")
+    master_transcript_url = models.URLField(blank=True, null=True, verbose_name="رابط كشف درجات الماجستير")
+    filled_form_url = models.URLField(blank=True, null=True, verbose_name="رابط الاستمارة المعبأة")
+    
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاريخ التسجيل")
+    google_sheet_row = models.IntegerField(blank=True, null=True, verbose_name="رقم الصف في الشيت")
+    
     class Meta:
-        ordering = ['appointment_date', 'appointment_time']
-        verbose_name = "نوبت"
-        verbose_name_plural = "نوبت‌ها"
-
+        ordering = ['-created_at']
+        verbose_name = "تسجيل طالب"
+        verbose_name_plural = "تسجيلات الطلاب"
+    
     def __str__(self):
-        return f"{self.name} - {self.appointment_date} {self.appointment_time}"
-
-
-class MonthlyReport(models.Model):
-    month = models.DateField(verbose_name="ماه")
-    total_appointments = models.IntegerField(default=0, verbose_name="مجموع نوبت‌ها")
-    master_count = models.IntegerField(default=0, verbose_name="تعداد دانشجویان ارشد")
-    phd_count = models.IntegerField(default=0, verbose_name="تعداد دانشجویان دکترا")
-    time_slot_data = models.JSONField(default=dict, verbose_name="داده‌های زمانی")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
-
-    class Meta:
-        ordering = ['-month']
-        verbose_name = "گزارش ماهانه"
-        verbose_name_plural = "گزارش‌های ماهانه"
-
-    def __str__(self):
-        return f"گزارش {self.month.strftime('%Y-%m')}"
-
-
-class DailyArchive(models.Model):
-    archive_date = models.DateField(verbose_name="تاریخ بایگانی")
-    appointments_data = models.JSONField(verbose_name="داده‌های نوبت‌ها")
-    total_count = models.IntegerField(default=0, verbose_name="تعداد کل")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
-
-    class Meta:
-        ordering = ['-archive_date']
-        verbose_name = "بایگانی روزانه"
-        verbose_name_plural = "بایگانی‌های روزانه"
-
-    def __str__(self):
-        return f"بایگانی {self.archive_date}"
+        return f"{self.name} - {self.get_degree_display()}"

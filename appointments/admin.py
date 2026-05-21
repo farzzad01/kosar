@@ -1,56 +1,29 @@
 from django.contrib import admin
-from .models import Appointment, MonthlyReport, DailyArchive
+from .models import StudentRegistration
 
-@admin.register(Appointment)
-class AppointmentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'phone', 'degree', 'appointment_date', 'appointment_time', 'is_archived', 'created_at')
-    list_filter = ('degree', 'appointment_date', 'appointment_time', 'is_archived')
-    search_fields = ('name', 'phone', 'reason')
-    readonly_fields = ('created_at',)
-    ordering = ('-appointment_date', '-appointment_time')
+@admin.register(StudentRegistration)
+class StudentRegistrationAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'passport_name', 'degree', 'major', 'phone', 'created_at']
+    list_filter = ['degree', 'university_type', 'created_at']
+    search_fields = ['name', 'passport_name', 'phone', 'major']
+    readonly_fields = ['created_at', 'google_sheet_row']
     
     fieldsets = (
-        ('اطلاعات دانشجو', {
-            'fields': ('name', 'phone', 'degree')
+        ('المعلومات الأساسية', {
+            'fields': ('name', 'passport_name', 'phone')
         }),
-        ('جزئیات نوبت', {
-            'fields': ('appointment_date', 'appointment_time', 'duration')
+        ('المعلومات الأكاديمية', {
+            'fields': ('degree', 'major', 'university_type', 'bachelor_university', 'master_university')
         }),
-        ('جزئیات مشاوره', {
-            'fields': ('reason', 'created_at', 'is_archived')
+        ('روابط المستندات', {
+            'fields': ('passport_url', 'bachelor_cert_url', 'master_cert_url', 
+                      'bachelor_transcript_url', 'master_transcript_url', 'filled_form_url')
+        }),
+        ('معلومات النظام', {
+            'fields': ('created_at', 'google_sheet_row')
         }),
     )
-
-
-@admin.register(MonthlyReport)
-class MonthlyReportAdmin(admin.ModelAdmin):
-    list_display = ('month', 'total_appointments', 'master_count', 'phd_count', 'created_at')
-    list_filter = ('month',)
-    readonly_fields = ('created_at',)
-    ordering = ('-month',)
     
-    fieldsets = (
-        ('اطلاعات گزارش', {
-            'fields': ('month', 'total_appointments', 'master_count', 'phd_count')
-        }),
-        ('داده‌های زمانی', {
-            'fields': ('time_slot_data', 'created_at')
-        }),
-    )
-
-
-@admin.register(DailyArchive)
-class DailyArchiveAdmin(admin.ModelAdmin):
-    list_display = ('archive_date', 'total_count', 'created_at')
-    list_filter = ('archive_date',)
-    readonly_fields = ('created_at',)
-    ordering = ('-archive_date',)
-    
-    fieldsets = (
-        ('اطلاعات بایگانی', {
-            'fields': ('archive_date', 'total_count', 'created_at')
-        }),
-        ('داده‌ها', {
-            'fields': ('appointments_data',)
-        }),
-    )
+    def has_delete_permission(self, request, obj=None):
+        # Prevent deletion to keep data integrity with Google Sheets
+        return request.user.is_superuser
