@@ -25,7 +25,7 @@ def submit_registration(request):
         master_university = request.POST.get('master_university', '')
         phone = request.POST.get('phone', '')
         
-        print(f"Received data: {name}, {degree}, {phone}")  # Debug
+        print(f"Received data: {name}, {degree}, {phone}")
         
         # Get uploaded files
         passport = request.FILES.get('passport')
@@ -35,9 +35,16 @@ def submit_registration(request):
         master_transcript = request.FILES.get('master_transcript')
         filled_form = request.FILES.get('filled_form')
         
-        print(f"Files received: passport={passport}, bachelor_cert={bachelor_cert}")  # Debug
+        # Create file URLs (just filenames for now)
+        file_urls = {
+            'passport_url': passport.name if passport else '',
+            'bachelor_cert_url': bachelor_cert.name if bachelor_cert else '',
+            'master_cert_url': master_cert.name if master_cert else '',
+            'bachelor_transcript_url': bachelor_transcript.name if bachelor_transcript else '',
+            'master_transcript_url': master_transcript.name if master_transcript else '',
+            'filled_form_url': filled_form.name if filled_form else ''
+        }
         
-        # For now, save to database without Google Sheets (for testing)
         # Create database record
         registration = StudentRegistration.objects.create(
             name=name,
@@ -48,15 +55,43 @@ def submit_registration(request):
             bachelor_university=bachelor_university,
             master_university=master_university,
             phone=phone,
-            passport_url=f"File: {passport.name if passport else 'None'}",
-            bachelor_cert_url=f"File: {bachelor_cert.name if bachelor_cert else 'None'}",
-            master_cert_url=f"File: {master_cert.name if master_cert else 'None'}",
-            bachelor_transcript_url=f"File: {bachelor_transcript.name if bachelor_transcript else 'None'}",
-            master_transcript_url=f"File: {master_transcript.name if master_transcript else 'None'}",
-            filled_form_url=f"File: {filled_form.name if filled_form else 'None'}"
+            **file_urls
         )
         
-        print(f"Registration created with ID: {registration.id}")  # Debug
+        print(f"Registration created with ID: {registration.id}")
+        
+        # Send to Google Sheets
+        try:
+            sheets_service = GoogleSheetsService()
+            
+            degree_display = 'ماجستير' if degree == 'master' else 'دكتوراه'
+            row_data = [
+                str(registration.id),
+                name,
+                passport_name,
+                degree_display,
+                major,
+                university_type,
+                bachelor_university,
+                master_university,
+                phone,
+                file_urls.get('passport_url', ''),
+                file_urls.get('bachelor_cert_url', ''),
+                file_urls.get('master_cert_url', ''),
+                file_urls.get('bachelor_transcript_url', ''),
+                file_urls.get('master_transcript_url', ''),
+                file_urls.get('filled_form_url', ''),
+                datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            ]
+            
+            row_number = sheets_service.add_row(row_data)
+            registration.google_sheet_row = row_number
+            registration.save()
+            
+            print(f"Data added to Google Sheets at row {row_number}")
+        except Exception as sheet_error:
+            print(f"Google Sheets error (continuing anyway): {str(sheet_error)}")
+            print(traceback.format_exc())
         
         return JsonResponse({
             'success': True,
