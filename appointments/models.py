@@ -11,23 +11,31 @@ class StudentRegistration(models.Model):
         ('ابتعاث', 'ابتعاث'),
     ]
     
+    MARITAL_STATUS_CHOICES = [
+        ('مجرد', 'مجرد'),
+        ('متأهل', 'متأهل'),
+    ]
+    
     # Basic Information
     name = models.CharField(max_length=200, verbose_name="الاسم")
     passport_name = models.CharField(max_length=200, verbose_name="الاسم بحسب الجواز")
+    phone = models.CharField(max_length=30, verbose_name="رقم الهاتف")
+    address_iraq = models.CharField(max_length=300, default='', verbose_name="العنوان في العراق")
+    job = models.CharField(max_length=200, default='', verbose_name="الوظيفة")
+    marital_status = models.CharField(max_length=20, choices=MARITAL_STATUS_CHOICES, default='مجرد', verbose_name="الحالة الاجتماعية")
+    children_count = models.IntegerField(blank=True, null=True, verbose_name="عدد الأطفال")
+    
+    # Academic Information
+    university_type = models.CharField(max_length=50, choices=UNIVERSITY_TYPE_CHOICES, verbose_name="نوع الجامعة")
     degree = models.CharField(max_length=10, choices=DEGREE_CHOICES, verbose_name="المقطع")
     major = models.CharField(max_length=200, verbose_name="التخصص")
-    university_type = models.CharField(max_length=50, choices=UNIVERSITY_TYPE_CHOICES, verbose_name="نوع الجامعة")
-    bachelor_university = models.CharField(max_length=200, verbose_name="جامعة البكالوريوس")
-    master_university = models.CharField(max_length=200, blank=True, null=True, verbose_name="جامعة الماجستير")
-    phone = models.CharField(max_length=30, verbose_name="رقم الهاتف")
+    bachelor_gpa = models.CharField(max_length=50, default='', verbose_name="معدل البكالوريوس")
+    master_gpa = models.CharField(max_length=50, blank=True, null=True, verbose_name="معدل الماجستير")
     
     # File URLs (stored in Google Drive)
-    passport_url = models.URLField(blank=True, null=True, verbose_name="رابط جواز السفر")
-    bachelor_cert_url = models.URLField(blank=True, null=True, verbose_name="رابط شهادة البكالوريوس")
-    master_cert_url = models.URLField(blank=True, null=True, verbose_name="رابط شهادة الماجستير")
-    bachelor_transcript_url = models.URLField(blank=True, null=True, verbose_name="رابط كشف درجات البكالوريوس")
-    master_transcript_url = models.URLField(blank=True, null=True, verbose_name="رابط كشف درجات الماجستير")
-    filled_form_url = models.URLField(blank=True, null=True, verbose_name="رابط الاستمارة المعبأة")
+    passport_url = models.URLField(blank=True, null=True, verbose_name="رابط عکس پاسپورت")
+    transcript_url = models.URLField(blank=True, null=True, verbose_name="رابط كشف درجات")
+    university_form_url = models.URLField(blank=True, null=True, verbose_name="رابط استمارة التحصيل الجامعي")
     
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاريخ التسجيل")

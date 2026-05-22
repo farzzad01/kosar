@@ -18,43 +18,46 @@ def submit_registration(request):
         # Get form data
         name = request.POST.get('name', '')
         passport_name = request.POST.get('passport_name', '')
+        phone = request.POST.get('phone', '')
+        address_iraq = request.POST.get('address_iraq', '')
+        job = request.POST.get('job', '')
+        marital_status = request.POST.get('marital_status', '')
+        children_count = request.POST.get('children_count', None)
+        
+        university_type = request.POST.get('university_type', '')
         degree = request.POST.get('degree', '')
         major = request.POST.get('major', '')
-        university_type = request.POST.get('university_type', '')
-        bachelor_university = request.POST.get('bachelor_university', '')
-        master_university = request.POST.get('master_university', '')
-        phone = request.POST.get('phone', '')
+        bachelor_gpa = request.POST.get('bachelor_gpa', '')
+        master_gpa = request.POST.get('master_gpa', '')
         
         print(f"Received data: {name}, {degree}, {phone}")
         
         # Get uploaded files
         passport = request.FILES.get('passport')
-        bachelor_cert = request.FILES.get('bachelor_cert')
-        master_cert = request.FILES.get('master_cert')
-        bachelor_transcript = request.FILES.get('bachelor_transcript')
-        master_transcript = request.FILES.get('master_transcript')
-        filled_form = request.FILES.get('filled_form')
+        transcript = request.FILES.get('transcript')
+        university_form = request.FILES.get('university_form')
         
         # Create file URLs (just filenames for now)
         file_urls = {
             'passport_url': passport.name if passport else '',
-            'bachelor_cert_url': bachelor_cert.name if bachelor_cert else '',
-            'master_cert_url': master_cert.name if master_cert else '',
-            'bachelor_transcript_url': bachelor_transcript.name if bachelor_transcript else '',
-            'master_transcript_url': master_transcript.name if master_transcript else '',
-            'filled_form_url': filled_form.name if filled_form else ''
+            'transcript_url': transcript.name if transcript else '',
+            'university_form_url': university_form.name if university_form else ''
         }
         
         # Create database record
         registration = StudentRegistration.objects.create(
             name=name,
             passport_name=passport_name,
+            phone=phone,
+            address_iraq=address_iraq,
+            job=job,
+            marital_status=marital_status,
+            children_count=int(children_count) if children_count else None,
+            university_type=university_type,
             degree=degree,
             major=major,
-            university_type=university_type,
-            bachelor_university=bachelor_university,
-            master_university=master_university,
-            phone=phone,
+            bachelor_gpa=bachelor_gpa,
+            master_gpa=master_gpa if master_gpa else None,
             **file_urls
         )
         
@@ -69,18 +72,19 @@ def submit_registration(request):
                 str(registration.id),
                 name,
                 passport_name,
+                phone,
+                address_iraq,
+                job,
+                marital_status,
+                str(children_count) if children_count else '',
+                university_type,
                 degree_display,
                 major,
-                university_type,
-                bachelor_university,
-                master_university,
-                phone,
+                bachelor_gpa,
+                master_gpa if master_gpa else '',
                 file_urls.get('passport_url', ''),
-                file_urls.get('bachelor_cert_url', ''),
-                file_urls.get('master_cert_url', ''),
-                file_urls.get('bachelor_transcript_url', ''),
-                file_urls.get('master_transcript_url', ''),
-                file_urls.get('filled_form_url', ''),
+                file_urls.get('transcript_url', ''),
+                file_urls.get('university_form_url', ''),
                 datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             ]
             
