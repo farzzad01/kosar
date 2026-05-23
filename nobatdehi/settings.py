@@ -94,6 +94,16 @@ else:
         }
     }
 
+# For Vercel deployment without database (stateless)
+if os.environ.get('VERCEL'):
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL', 'postgresql://postgres:Kosar@#innocent@db.tdnvngddbookenppbejb.supabase.co:5432/postgres'),
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

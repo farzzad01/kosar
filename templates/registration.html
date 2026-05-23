@@ -144,6 +144,67 @@
         .required {
             color: #d4af37;
         }
+        
+        .success-message {
+            display: none;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            animation: slideDown 0.5s ease;
+        }
+        
+        .error-message {
+            display: none;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+            animation: slideDown 0.5s ease;
+        }
+        
+        .success-message.show,
+        .error-message.show {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .message-icon {
+            width: 50px;
+            height: 50px;
+            flex-shrink: 0;
+        }
+        
+        .message-content {
+            flex: 1;
+        }
+        
+        .message-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .message-text {
+            font-size: 16px;
+            opacity: 0.95;
+        }
     </style>
 </head>
 <body class="py-8 px-4">
@@ -159,6 +220,28 @@
 
         <!-- Form Container -->
         <div class="form-container p-10">
+            <!-- Success Message -->
+            <div class="success-message" id="successMessage">
+                <svg class="message-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div class="message-content">
+                    <div class="message-title">تم إرسال طلبك بنجاح!</div>
+                    <div class="message-text">سيتم مراجعة طلبك والتواصل معك قريباً</div>
+                </div>
+            </div>
+            
+            <!-- Error Message -->
+            <div class="error-message" id="errorMessage">
+                <svg class="message-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div class="message-content">
+                    <div class="message-title">حدث خطأ أثناء الإرسال</div>
+                    <div class="message-text">يرجى إدخال البيانات مرة أخرى. حدثت مشكلة في الاتصال بالإنترنت، يرجى المحاولة مرة أخرى</div>
+                </div>
+            </div>
+            
             <form id="registrationForm" class="space-y-7">
                 {% csrf_token %}
                 
@@ -462,9 +545,15 @@
         // Form submission
         const form = document.getElementById('registrationForm');
         const loadingOverlay = document.getElementById('loadingOverlay');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
 
         form.addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            // Hide any previous messages
+            successMessage.classList.remove('show');
+            errorMessage.classList.remove('show');
             
             loadingOverlay.classList.add('active');
             
@@ -486,16 +575,41 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    alert('✅ تم إرسال طلبك بنجاح!\n\nرقم التسجيل: ' + result.registration_id + '\n\nسنتواصل معك قريباً.');
+                    // Show success message
+                    successMessage.classList.add('show');
+                    
+                    // Scroll to top to show message
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    
+                    // Reset form
                     form.reset();
                     document.querySelectorAll('.file-preview-container').forEach(c => c.innerHTML = '');
                     iti.setNumber('');
+                    
+                    // Hide form temporarily
+                    form.style.display = 'none';
+                    
+                    // Show form again after 5 seconds
+                    setTimeout(() => {
+                        successMessage.classList.remove('show');
+                        form.style.display = 'block';
+                    }, 5000);
                 } else {
                     throw new Error(result.error || 'فشل الإرسال');
                 }
             } catch (error) {
-                alert('❌ حدث خطأ أثناء الإرسال:\n' + error.message + '\n\nيرجى المحاولة مرة أخرى.');
+                // Show error message
+                errorMessage.classList.add('show');
+                
+                // Scroll to top to show message
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
                 console.error('Error:', error);
+                
+                // Hide error message after 5 seconds
+                setTimeout(() => {
+                    errorMessage.classList.remove('show');
+                }, 5000);
             } finally {
                 loadingOverlay.classList.remove('active');
             }
