@@ -34,7 +34,8 @@ class StudentRegistration(models.Model):
     
     # File URLs (stored in Google Drive)
     passport_url = models.URLField(blank=True, null=True, verbose_name="رابط عکس پاسپورت")
-    transcript_url = models.URLField(blank=True, null=True, verbose_name="رابط كشف درجات")
+    transcript_url = models.URLField(blank=True, null=True, verbose_name="رابط كشف درجات البكالوريوس")
+    master_transcript_url = models.URLField(blank=True, null=True, verbose_name="رابط كشف درجات الماجستير")
     university_form_url = models.URLField(blank=True, null=True, verbose_name="رابط استمارة التحصيل الجامعي")
     
     # Metadata

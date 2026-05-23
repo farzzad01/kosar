@@ -121,12 +121,12 @@
         }
         
         .iti__flag-container {
-            right: 0;
-            left: auto;
+            left: 0;
+            right: auto;
         }
         
         .iti__selected-flag {
-            padding: 0 8px 0 20px;
+            padding: 0 20px 0 8px;
         }
         
         .section-title {
@@ -151,7 +151,7 @@
         <!-- Header -->
         <div class="header-section rounded-2xl p-8 mb-8 text-center shadow-lg">
             <div class="bg-white rounded-full w-28 h-28 mx-auto mb-4 flex items-center justify-center shadow-xl">
-                <img src="/assets/logogg/logokosar.jpg" alt="Logo" class="w-20 h-20 object-contain" onerror="this.src='/static/logokosar.jpg'">
+                <img src="/static/logome.jpg" alt="Logo" class="w-20 h-20 object-contain" onerror="this.src='/static/logokosar.jpg'">
             </div>
             <h1 class="text-5xl font-bold text-white mb-2">استمارة التسجيل</h1>
             <div class="mt-4 h-1 w-32 bg-white/30 mx-auto rounded"></div>
@@ -168,13 +168,6 @@
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block mb-2">الاسم <span class="required">*</span></label>
-                            <input type="text" name="name" required 
-                                class="input-field w-full rounded-lg px-4 py-3"
-                                placeholder="أدخل اسمك الكامل">
-                        </div>
-
-                        <div>
                             <label class="block mb-2">الاسم بحسب الجواز <span class="required">*</span></label>
                             <input type="text" name="passport_name" required 
                                 class="input-field w-full rounded-lg px-4 py-3"
@@ -185,7 +178,7 @@
                             <label class="block mb-2">رقم الهاتف <span class="required">*</span></label>
                             <input type="tel" id="phone" name="phone" required 
                                 class="input-field w-full rounded-lg px-4 py-3"
-                                placeholder="أدخل رقم هاتفك">
+                                placeholder="+964">
                         </div>
 
                         <div>
@@ -273,10 +266,10 @@
                 <div>
                     <h2 class="section-title text-2xl font-bold">تحميل المستندات المطلوبة</h2>
                     
-                    <!-- عکس پاسپورت -->
+                    <!-- صورة جواز السفر -->
                     <div class="mb-6">
-                        <label class="block mb-2">عکس پاسپورت <span class="required">*</span></label>
-                        <p class="text-sm text-gray-600 mb-2">لطفاً عکس خوانا، واضح و بدون کج و کوله بارگذاری کنید تا ثبت‌نام شما موفق باشد</p>
+                        <label class="block mb-2">صورة جواز السفر <span class="required">*</span></label>
+                        <p class="text-sm text-gray-600 mb-2">يرجى تحميل صورة واضحة ومقروءة لجواز السفر لضمان نجاح التسجيل</p>
                         <div class="upload-area rounded-lg p-6 text-center" data-field="passport">
                             <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
@@ -288,9 +281,9 @@
                         <div class="file-preview-container"></div>
                     </div>
 
-                    <!-- كشف درجات البكالوريوس أو الماجستير -->
+                    <!-- كشف درجات البكالوريوس -->
                     <div class="mb-6">
-                        <label class="block mb-2">كشف درجات البكالوريوس أو الماجستير <span class="required">*</span></label>
+                        <label class="block mb-2">كشف درجات البكالوريوس <span class="required">*</span></label>
                         <div class="upload-area rounded-lg p-6 text-center" data-field="transcript">
                             <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
@@ -298,6 +291,20 @@
                             <p class="text-gray-600 font-medium">اضغط أو اسحب الملف هنا</p>
                             <p class="text-sm text-gray-500 mt-1">PDF أو صورة</p>
                             <input type="file" name="transcript" accept="image/*,.pdf" required class="hidden">
+                        </div>
+                        <div class="file-preview-container"></div>
+                    </div>
+
+                    <!-- كشف درجات الماجستير (للدكتوراه فقط) -->
+                    <div class="mb-6" id="masterTranscriptField" style="display: none;">
+                        <label class="block mb-2">كشف درجات الماجستير <span class="required">*</span></label>
+                        <div class="upload-area rounded-lg p-6 text-center" data-field="master_transcript">
+                            <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <p class="text-gray-600 font-medium">اضغط أو اسحب الملف هنا</p>
+                            <p class="text-sm text-gray-500 mt-1">PDF أو صورة</p>
+                            <input type="file" name="master_transcript" accept="image/*,.pdf" class="hidden">
                         </div>
                         <div class="file-preview-container"></div>
                     </div>
@@ -350,20 +357,25 @@
             utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"
         });
 
-        // Show/hide master GPA field
+        // Show/hide master GPA field and master transcript field
         const degreeSelect = document.getElementById('degreeSelect');
         const masterGpaField = document.getElementById('masterGpaField');
+        const masterTranscriptField = document.getElementById('masterTranscriptField');
 
         degreeSelect.addEventListener('change', function() {
             const isPhD = this.value === 'phd';
             masterGpaField.style.display = isPhD ? 'block' : 'none';
+            masterTranscriptField.style.display = isPhD ? 'block' : 'none';
             
             const masterGpaInput = masterGpaField.querySelector('input');
+            const masterTranscriptInput = masterTranscriptField.querySelector('input');
             
             if (isPhD) {
                 masterGpaInput.setAttribute('required', 'required');
+                masterTranscriptInput.setAttribute('required', 'required');
             } else {
                 masterGpaInput.removeAttribute('required');
+                masterTranscriptInput.removeAttribute('required');
             }
         });
 

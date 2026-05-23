@@ -35,12 +35,14 @@ def submit_registration(request):
         # Get uploaded files
         passport = request.FILES.get('passport')
         transcript = request.FILES.get('transcript')
+        master_transcript = request.FILES.get('master_transcript')
         university_form = request.FILES.get('university_form')
         
         # Create file URLs (just filenames for now)
         file_urls = {
             'passport_url': passport.name if passport else '',
             'transcript_url': transcript.name if transcript else '',
+            'master_transcript_url': master_transcript.name if master_transcript else '',
             'university_form_url': university_form.name if university_form else ''
         }
         
@@ -70,7 +72,6 @@ def submit_registration(request):
             degree_display = 'ماجستير' if degree == 'master' else 'دكتوراه'
             row_data = [
                 str(registration.id),
-                name,
                 passport_name,
                 phone,
                 address_iraq,
@@ -84,6 +85,7 @@ def submit_registration(request):
                 master_gpa if master_gpa else '',
                 file_urls.get('passport_url', ''),
                 file_urls.get('transcript_url', ''),
+                file_urls.get('master_transcript_url', ''),
                 file_urls.get('university_form_url', ''),
                 datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             ]
