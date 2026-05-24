@@ -16,9 +16,12 @@ def submit_registration(request):
     """Handle registration form submission"""
     try:
         # Get form data
-        name = request.POST.get('name', '')
-        passport_name = request.POST.get('passport_name', '')
+        first_name = request.POST.get('first_name', '')
+        middle_name = request.POST.get('middle_name', '')
+        last_name = request.POST.get('last_name', '')
+        religion = request.POST.get('religion', '')
         phone = request.POST.get('phone', '')
+        email = request.POST.get('email', '')
         address_iraq = request.POST.get('address_iraq', '')
         job = request.POST.get('job', '')
         marital_status = request.POST.get('marital_status', '')
@@ -27,10 +30,11 @@ def submit_registration(request):
         university_type = request.POST.get('university_type', '')
         degree = request.POST.get('degree', '')
         major = request.POST.get('major', '')
+        previous_university = request.POST.get('previous_university', '')
         bachelor_gpa = request.POST.get('bachelor_gpa', '')
         master_gpa = request.POST.get('master_gpa', '')
         
-        print(f"Received data: {name}, {degree}, {phone}")
+        print(f"Received data: {first_name} {last_name}, {degree}, {phone}")
         
         # Get uploaded files
         passport = request.FILES.get('passport')
@@ -48,9 +52,12 @@ def submit_registration(request):
         
         # Create database record
         registration = StudentRegistration.objects.create(
-            name=name,
-            passport_name=passport_name,
+            first_name=first_name,
+            middle_name=middle_name,
+            last_name=last_name,
+            religion=religion,
             phone=phone,
+            email=email,
             address_iraq=address_iraq,
             job=job,
             marital_status=marital_status,
@@ -58,6 +65,7 @@ def submit_registration(request):
             university_type=university_type,
             degree=degree,
             major=major,
+            previous_university=previous_university,
             bachelor_gpa=bachelor_gpa,
             master_gpa=master_gpa if master_gpa else None,
             **file_urls
@@ -70,10 +78,13 @@ def submit_registration(request):
             sheets_service = GoogleSheetsService()
             
             degree_display = 'ماجستير' if degree == 'master' else 'دكتوراه'
+            full_name = f"{first_name} {middle_name} {last_name}"
             row_data = [
                 str(registration.id),
-                passport_name,
+                full_name,
+                religion,
                 phone,
+                email,
                 address_iraq,
                 job,
                 marital_status,
@@ -81,6 +92,7 @@ def submit_registration(request):
                 university_type,
                 degree_display,
                 major,
+                previous_university,
                 bachelor_gpa,
                 master_gpa if master_gpa else '',
                 file_urls.get('passport_url', ''),
