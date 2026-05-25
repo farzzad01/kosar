@@ -67,6 +67,7 @@ class GoogleSheetsService:
             'معدل البكالوريوس',
             'معدل الماجستير',
             'ملف جواز السفر',
+            'ملف صورة الشخص',
             'ملف كشف درجات البكالوريوس',
             'ملف كشف درجات الماجستير',
             'ملف وثيقة الماجستير',
@@ -76,7 +77,7 @@ class GoogleSheetsService:
         
         # Format header
         try:
-            self.sheet.format('A1:U1', {
+            self.sheet.format('A1:V1', {
                 'backgroundColor': {'red': 0.83, 'green': 0.69, 'blue': 0.22},
                 'textFormat': {'bold': True, 'foregroundColor': {'red': 1, 'green': 1, 'blue': 1}},
                 'horizontalAlignment': 'CENTER'

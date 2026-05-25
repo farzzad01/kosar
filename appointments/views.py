@@ -1,4 +1,4 @@
-from django.shortcuts import render
+﻿from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from .models import StudentRegistration
@@ -46,8 +46,9 @@ def submit_registration(request):
         # Validate required files
         required_files = {
             'passport': 'صورة جواز السفر',
+            'personal_photo': 'صورة الشخص',
             'transcript': 'كشف درجات البكالوريوس',
-            'university_form': 'استمارة التحصيل الجامعي'
+            'master_certificate': 'وثيقة الماجستير'
         }
         
         missing_files = []
@@ -91,16 +92,18 @@ def submit_registration(request):
         
         # Get uploaded files
         passport = request.FILES.get('passport')
+        personal_photo = request.FILES.get('personal_photo')
         transcript = request.FILES.get('transcript')
         master_transcript = request.FILES.get('master_transcript')
-        university_form = request.FILES.get('university_form')
+        master_certificate = request.FILES.get('master_certificate')
         
         # Create file info
         file_info = {
             'passport': passport.name if passport else '',
+            'personal_photo': personal_photo.name if personal_photo else '',
             'transcript': transcript.name if transcript else '',
             'master_transcript': master_transcript.name if master_transcript else '',
-            'university_form': university_form.name if university_form else ''
+            'master_certificate': master_certificate.name if master_certificate else ''
         }
         
         print(f"[DEBUG] Files received: {list(file_info.keys())}")
@@ -128,12 +131,14 @@ def submit_registration(request):
                 degree_display,
                 major,
                 previous_university,
+                master_university if master_university else '',
                 bachelor_gpa,
                 master_gpa if master_gpa else '',
                 file_info.get('passport', ''),
+                file_info.get('personal_photo', ''),
                 file_info.get('transcript', ''),
                 file_info.get('master_transcript', ''),
-                file_info.get('university_form', ''),
+                file_info.get('master_certificate', ''),
                 datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             ]
             

@@ -209,15 +209,18 @@
 </head>
 <body class="py-8 px-4">
     <div class="max-w-5xl mx-auto">
-        <!-- Header -->
-        <div class="header-section rounded-2xl p-8 mb-8 text-center shadow-lg">
-            <div class="bg-white rounded-full w-32 h-32 mx-auto mb-4 flex items-center justify-center shadow-xl p-2">
-                <img src="/static/logoo.png" alt="Logo" class="w-full h-full object-cover rounded-full" 
+        <!-- Header with Logo in Corner -->
+        <div class="header-section rounded-2xl p-8 mb-8 shadow-lg relative">
+            <!-- Logo in top right corner -->
+            <div class="absolute top-4 right-4">
+                <img src="/static/logokosar.jpg" alt="Logo" class="w-16 h-16 object-contain" 
                      onerror="this.onerror=null; this.src='/static/logoo.png';"
                      loading="eager">
             </div>
-            <h1 class="text-5xl font-bold text-white mb-2">استمارة التسجيل</h1>
-            <div class="mt-4 h-1 w-32 bg-white/30 mx-auto rounded"></div>
+            <div class="text-center">
+                <h1 class="text-5xl font-bold text-white mb-2">استمارة التسجيل</h1>
+                <div class="mt-4 h-1 w-32 bg-white/30 mx-auto rounded"></div>
+            </div>
         </div>
 
         <!-- Form Container -->
@@ -406,6 +409,20 @@
                             <p class="text-gray-600 font-medium">اضغط أو اسحب الملف هنا</p>
                             <p class="text-sm text-gray-500 mt-1">PDF أو صورة</p>
                             <input type="file" name="passport" accept="image/*,.pdf" required class="hidden">
+                        </div>
+                        <div class="file-preview-container"></div>
+                    </div>
+
+                    <!-- صورة الشخص -->
+                    <div class="mb-6">
+                        <label class="block mb-2">صورة الشخص <span class="required">*</span></label>
+                        <div class="upload-area rounded-lg p-6 text-center" data-field="personal_photo">
+                            <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <p class="text-gray-600 font-medium">اضغط أو اسحب الملف هنا</p>
+                            <p class="text-sm text-gray-500 mt-1">PDF أو صورة</p>
+                            <input type="file" name="personal_photo" accept="image/*,.pdf" required class="hidden">
                         </div>
                         <div class="file-preview-container"></div>
                     </div>
