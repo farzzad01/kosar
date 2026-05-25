@@ -211,8 +211,10 @@
     <div class="max-w-5xl mx-auto">
         <!-- Header -->
         <div class="header-section rounded-2xl p-8 mb-8 text-center shadow-lg">
-            <div class="bg-white rounded-full w-28 h-28 mx-auto mb-4 flex items-center justify-center shadow-xl">
-                <img src="/static/logoo.png" alt="Logo" class="w-20 h-20 object-contain" onerror="this.src='/static/logokosar.jpg'">
+            <div class="bg-white rounded-full w-32 h-32 mx-auto mb-4 flex items-center justify-center shadow-xl p-2">
+                <img src="/static/logoo.png" alt="Logo" class="w-full h-full object-cover rounded-full" 
+                     onerror="this.onerror=null; this.src='/static/logoo.png';"
+                     loading="eager">
             </div>
             <h1 class="text-5xl font-bold text-white mb-2">استمارة التسجيل</h1>
             <div class="mt-4 h-1 w-32 bg-white/30 mx-auto rounded"></div>
@@ -613,6 +615,13 @@
                     body: formData
                 });
                 
+                // Check if response is ok
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Server Error Response:', errorText);
+                    throw new Error(`خطأ في الخادم (${response.status}): ${errorText.substring(0, 200)}`);
+                }
+                
                 const result = await response.json();
                 
                 if (result.success) {
@@ -639,18 +648,24 @@
                     throw new Error(result.error || 'فشل الإرسال');
                 }
             } catch (error) {
+                // Update error message with detailed error
+                const errorMessageText = errorMessage.querySelector('.message-text');
+                errorMessageText.textContent = error.message || 'حدث خطأ غير معروف';
+                
                 // Show error message
                 errorMessage.classList.add('show');
                 
                 // Scroll to top to show message
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 
-                console.error('Error:', error);
+                // Log full error to console for debugging
+                console.error('Full Error Details:', error);
+                console.error('Error Stack:', error.stack);
                 
-                // Hide error message after 5 seconds
+                // Hide error message after 10 seconds (longer to read error)
                 setTimeout(() => {
                     errorMessage.classList.remove('show');
-                }, 5000);
+                }, 10000);
             } finally {
                 loadingOverlay.classList.remove('active');
             }
