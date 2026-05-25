@@ -2,6 +2,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from django.conf import settings
 import os
+import json
 
 class GoogleSheetsService:
     def __init__(self):
@@ -11,16 +12,34 @@ class GoogleSheetsService:
             'https://www.googleapis.com/auth/spreadsheets'
         ]
         
-        creds_path = os.path.join(settings.BASE_DIR, 'decent-destiny-466517-k1-18a0c65a31ea.json')
+        # Try to get credentials from environment variable first (for Vercel)
+        creds_json = os.environ.get('GOOGLE_CREDENTIALS_JSON')
         
-        if not os.path.exists(creds_path):
-            raise FileNotFoundError(f"Credentials file not found at {creds_path}")
+        if creds_json:
+            # Parse JSON from environment variable
+            try:
+                creds_dict = json.loads(creds_json)
+                self.creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+                print("[DEBUG] Using credentials from environment variable")
+            except json.JSONDecodeError as e:
+                raise ValueError(f"Invalid JSON in GOOGLE_CREDENTIALS_JSON: {str(e)}")
+        else:
+            # Fallback to file (for local development)
+            creds_path = os.path.join(settings.BASE_DIR, 'decent-destiny-466517-k1-18a0c65a31ea.json')
+            
+            if not os.path.exists(creds_path):
+                raise FileNotFoundError(
+                    f"Credentials not found. Please set GOOGLE_CREDENTIALS_JSON environment variable "
+                    f"or place credentials file at {creds_path}"
+                )
+            
+            self.creds = ServiceAccountCredentials.from_json_keyfile_name(creds_path, scope)
+            print("[DEBUG] Using credentials from file")
         
-        self.creds = ServiceAccountCredentials.from_json_keyfile_name(creds_path, scope)
         self.client = gspread.authorize(self.creds)
         
         # Open by spreadsheet ID
-        SPREADSHEET_ID = '1Jn2UaFzUE_4BOveyZ9Ryjz40tu6_RqlRSXC79iz-8dc'
+        SPREADSHEET_ID = os.environ.get('GOOGLE_SHEET_ID', '1Jn2UaFzUE_4BOveyZ9Ryjz40tu6_RqlRSXC79iz-8dc')
         self.spreadsheet = self.client.open_by_key(SPREADSHEET_ID)
         self.sheet = self.spreadsheet.sheet1
         

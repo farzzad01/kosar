@@ -1,78 +1,55 @@
-# إعداد متغيرات البيئة على Vercel
+# تنظیم Environment Variables در Vercel
 
-## المشكلة
-عند نشر المشروع على Vercel، لا يمكن رفع ملف الاعتماد (credentials file) مباشرة لأسباب أمنية. بدلاً من ذلك، يجب استخدام متغيرات البيئة.
+برای اینکه سیستم در Vercel کار کند، باید این متغیرها را در تنظیمات Vercel اضافه کنید:
 
-## الحل
+## مراحل تنظیم:
 
-### 1. تحويل ملف JSON إلى متغير بيئة
+### 1. رفتن به تنظیمات Vercel
+1. به پروژه خود در Vercel بروید
+2. روی **Settings** کلیک کنید
+3. از منوی سمت چپ **Environment Variables** را انتخاب کنید
 
-افتح ملف `decent-destiny-466517-k1-18a0c65a31ea.json` وانسخ محتواه بالكامل (يجب أن يكون JSON واحد في سطر واحد أو متعدد الأسطر).
+### 2. اضافه کردن متغیرها
 
-### 2. إضافة المتغير على Vercel
+#### GOOGLE_CREDENTIALS_JSON (مهم!)
+این متغیر باید محتوای کامل فایل `decent-destiny-466517-k1-18a0c65a31ea.json` را داشته باشد.
 
-1. اذهب إلى لوحة تحكم Vercel: https://vercel.com/dashboard
-2. اختر مشروعك
-3. اذهب إلى **Settings** → **Environment Variables**
-4. أضف متغير جديد:
-   - **Name**: `GOOGLE_CREDENTIALS_JSON`
-   - **Value**: الصق محتوى ملف JSON بالكامل
-   - **Environment**: اختر جميع البيئات (Production, Preview, Development)
-5. اضغط **Save**
+**مراحل:**
+1. فایل `decent-destiny-466517-k1-18a0c65a31ea.json` را باز کنید
+2. تمام محتوای آن را کپی کنید (باید یک JSON کامل باشد)
+3. در Vercel:
+   - Name: `GOOGLE_CREDENTIALS_JSON`
+   - Value: محتوای کامل فایل JSON را paste کنید
+   - Environment: Production, Preview, Development (هر سه را انتخاب کنید)
 
-### 3. إعادة النشر
+#### GOOGLE_SHEET_ID (اختیاری)
+- Name: `GOOGLE_SHEET_ID`
+- Value: `1Jn2UaFzUE_4BOveyZ9Ryjz40tu6_RqlRSXC79iz-8dc`
+- Environment: Production, Preview, Development
 
-بعد إضافة المتغير، يجب إعادة نشر المشروع:
+#### SECRET_KEY (توصیه می‌شود)
+- Name: `SECRET_KEY`
+- Value: یک کلید تصادفی و امن (می‌توانید از [این سایت](https://djecrety.ir/) استفاده کنید)
+- Environment: Production, Preview, Development
 
-```bash
-git add .
-git commit -m "Update Google credentials handling"
-git push
-```
+#### DEBUG (اختیاری)
+- Name: `DEBUG`
+- Value: `False`
+- Environment: Production
 
-أو من لوحة Vercel:
-- اذهب إلى **Deployments**
-- اضغط على النقاط الثلاث بجانب آخر deployment
-- اختر **Redeploy**
+### 3. Redeploy کردن
+بعد از اضافه کردن متغیرها:
+1. به تب **Deployments** بروید
+2. آخرین deployment را پیدا کنید
+3. روی دکمه **...** کلیک کنید
+4. **Redeploy** را انتخاب کنید
 
-## التحقق من الإعداد
+## نکات مهم:
 
-بعد إعادة النشر، جرب تسجيل طالب جديد. يجب أن يعمل رفع الملفات والحفظ في Google Sheets بدون مشاكل.
+- محتوای `GOOGLE_CREDENTIALS_JSON` باید یک JSON معتبر باشد
+- مطمئن شوید که فاصله یا کاراکتر اضافی در ابتدا یا انتهای JSON نباشد
+- اگر خطای "Invalid JSON" گرفتید، محتوای JSON را در یک JSON validator بررسی کنید
 
-## ملاحظات مهمة
+## تست کردن:
 
-- **لا ترفع ملف الاعتماد إلى Git**: تأكد من أن الملف موجود في `.gitignore`
-- **JSON صحيح**: تأكد من أن JSON صالح (بدون أخطاء في الأقواس أو الفواصل)
-- **الأذونات**: تأكد من أن حساب الخدمة له صلاحيات الوصول إلى Google Drive و Google Sheets
-
-## البيئة المحلية
-
-في البيئة المحلية، سيستمر الكود في استخدام ملف JSON مباشرة، لذا لا حاجة لتغيير أي شيء في التطوير المحلي.
-
-## استكشاف الأخطاء
-
-إذا استمرت المشكلة:
-
-1. تحقق من أن المتغير `GOOGLE_CREDENTIALS_JSON` موجود في Vercel
-2. تحقق من أن JSON صالح (استخدم أداة JSON validator)
-3. تحقق من logs في Vercel Dashboard → Deployments → View Function Logs
-4. تأكد من أن حساب الخدمة له الصلاحيات المطلوبة
-
-## مثال على محتوى المتغير
-
-يجب أن يكون المتغير بهذا الشكل (مثال):
-
-```json
-{
-  "type": "service_account",
-  "project_id": "decent-destiny-466517-k1",
-  "private_key_id": "...",
-  "private_key": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n",
-  "client_email": "...",
-  "client_id": "...",
-  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-  "token_uri": "https://oauth2.googleapis.com/token",
-  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "..."
-}
-```
+بعد از redeploy، فرم را دوباره تست کنید. اگر همه چیز درست باشد، داده‌ها باید در Google Sheets ظاهر شوند.
