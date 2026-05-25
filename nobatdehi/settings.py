@@ -76,8 +76,25 @@ WSGI_APPLICATION = 'nobatdehi.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# For Vercel deployment - use Supabase PostgreSQL
+if os.environ.get('VERCEL'):
+    DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://postgres:Kosar@#innocent@db.tdnvngddbookenppbejb.supabase.co:5432/postgres')
+    if DATABASE_URL:
+        DATABASES = {
+            'default': dj_database_url.parse(DATABASE_URL)
+        }
+        DATABASES['default']['CONN_MAX_AGE'] = 600
+        DATABASES['default']['CONN_HEALTH_CHECKS'] = True
+    else:
+        # Fallback to SQLite if no DATABASE_URL
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
 # Use PostgreSQL from environment variable (Supabase) or SQLite for local
-if os.environ.get('DATABASE_URL'):
+elif os.environ.get('DATABASE_URL'):
     DATABASES = {
         'default': dj_database_url.config(
             default=os.environ.get('DATABASE_URL'),
@@ -92,16 +109,6 @@ else:
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
-    }
-
-# For Vercel deployment without database (stateless)
-if os.environ.get('VERCEL'):
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=os.environ.get('DATABASE_URL', 'postgresql://postgres:Kosar@#innocent@db.tdnvngddbookenppbejb.supabase.co:5432/postgres'),
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
     }
 
 
