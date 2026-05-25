@@ -85,6 +85,7 @@ def submit_registration(request):
         university_type = request.POST.get('university_type', '')
         major = request.POST.get('major', '')
         previous_university = request.POST.get('previous_university', '')
+        master_university = request.POST.get('master_university', '')
         bachelor_gpa = request.POST.get('bachelor_gpa', '')
         master_gpa = request.POST.get('master_gpa', '')
         
