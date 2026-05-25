@@ -62,20 +62,21 @@ class GoogleSheetsService:
             'نوع الجامعة',
             'المقطع',
             'التخصص',
-            'الجامعة السابقة',
+            'الجامعة السابقة (البكالوريوس)',
+            'الجامعة السابقة (الماجستير)',
             'معدل البكالوريوس',
             'معدل الماجستير',
             'ملف جواز السفر',
             'ملف كشف درجات البكالوريوس',
             'ملف كشف درجات الماجستير',
-            'ملف السيرة الذاتية',
+            'ملف وثيقة الماجستير',
             'تاريخ التسجيل'
         ]
         self.sheet.append_row(headers)
         
         # Format header
         try:
-            self.sheet.format('A1:T1', {
+            self.sheet.format('A1:U1', {
                 'backgroundColor': {'red': 0.83, 'green': 0.69, 'blue': 0.22},
                 'textFormat': {'bold': True, 'foregroundColor': {'red': 1, 'green': 1, 'blue': 1}},
                 'horizontalAlignment': 'CENTER'

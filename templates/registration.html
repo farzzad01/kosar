@@ -359,10 +359,17 @@
                         </div>
 
                         <div>
-                            <label class="block mb-2">اسم الجامعة السابقة <span class="required">*</span></label>
+                            <label class="block mb-2">اسم الجامعة السابقة (البكالوريوس) <span class="required">*</span></label>
                             <input type="text" name="previous_university" required 
                                 class="input-field w-full rounded-lg px-4 py-3"
                                 placeholder="الجامعة التي تخرجت منها">
+                        </div>
+
+                        <div id="masterUniversityField" style="display: none;">
+                            <label class="block mb-2">اسم الجامعة السابقة (الماجستير) <span class="required">*</span></label>
+                            <input type="text" name="master_university" 
+                                class="input-field w-full rounded-lg px-4 py-3"
+                                placeholder="جامعة الماجستير">
                         </div>
 
                         <div>
@@ -383,7 +390,10 @@
 
                 <!-- تحميل المستندات -->
                 <div>
-                    <h2 class="section-title text-2xl font-bold">تحميل المستندات المطلوبة</h2>
+                    <h2 class="section-title text-2xl font-bold">
+                        تحميل المستندات المطلوبة
+                        <span class="text-red-600 text-lg mr-4">⚠ يرجى تحميل صور واضحة ومقروءة</span>
+                    </h2>
                     
                     <!-- صورة جواز السفر -->
                     <div class="mb-6">
@@ -428,16 +438,16 @@
                         <div class="file-preview-container"></div>
                     </div>
 
-                    <!-- استمارة التحصيل الجامعي / CV -->
+                    <!-- وثيقة الماجستير (للبكالوريوس) -->
                     <div class="mb-6">
-                        <label class="block mb-2">استمارة التحصيل الجامعي / السيرة الذاتية <span class="required">*</span></label>
-                        <div class="upload-area rounded-lg p-6 text-center" data-field="university_form">
+                        <label class="block mb-2">وثيقة الماجستير <span class="required">*</span></label>
+                        <div class="upload-area rounded-lg p-6 text-center" data-field="master_certificate">
                             <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                             </svg>
                             <p class="text-gray-600 font-medium">اضغط أو اسحب الملف هنا</p>
                             <p class="text-sm text-gray-500 mt-1">PDF أو صورة</p>
-                            <input type="file" name="university_form" accept="image/*,.pdf" required class="hidden">
+                            <input type="file" name="master_certificate" accept="image/*,.pdf" required class="hidden">
                         </div>
                         <div class="file-preview-container"></div>
                     </div>
@@ -480,21 +490,27 @@
         const degreeSelect = document.getElementById('degreeSelect');
         const masterGpaField = document.getElementById('masterGpaField');
         const masterTranscriptField = document.getElementById('masterTranscriptField');
+        const previousUniversityField = document.querySelector('input[name="previous_university"]').closest('div');
+        const masterUniversityField = document.getElementById('masterUniversityField');
 
         degreeSelect.addEventListener('change', function() {
             const isPhD = this.value === 'phd';
             masterGpaField.style.display = isPhD ? 'block' : 'none';
             masterTranscriptField.style.display = isPhD ? 'block' : 'none';
+            masterUniversityField.style.display = isPhD ? 'block' : 'none';
             
             const masterGpaInput = masterGpaField.querySelector('input');
             const masterTranscriptInput = masterTranscriptField.querySelector('input');
+            const masterUniversityInput = masterUniversityField.querySelector('input');
             
             if (isPhD) {
                 masterGpaInput.setAttribute('required', 'required');
                 masterTranscriptInput.setAttribute('required', 'required');
+                masterUniversityInput.setAttribute('required', 'required');
             } else {
                 masterGpaInput.removeAttribute('required');
                 masterTranscriptInput.removeAttribute('required');
+                masterUniversityInput.removeAttribute('required');
             }
         });
 
