@@ -13,7 +13,7 @@ def registration(request):
 
 @require_http_methods(["POST"])
 def submit_registration(request):
-    """Handle registration form submission"""
+    """Handle registration form submission - Stateless version for Vercel"""
     try:
         # Validate required fields
         required_fields = {
@@ -96,54 +96,27 @@ def submit_registration(request):
         master_transcript = request.FILES.get('master_transcript')
         university_form = request.FILES.get('university_form')
         
-        # Create file URLs (just filenames for now)
-        file_urls = {
-            'passport_url': passport.name if passport else '',
-            'transcript_url': transcript.name if transcript else '',
-            'master_transcript_url': master_transcript.name if master_transcript else '',
-            'university_form_url': university_form.name if university_form else ''
+        # Create file info
+        file_info = {
+            'passport': passport.name if passport else '',
+            'transcript': transcript.name if transcript else '',
+            'master_transcript': master_transcript.name if master_transcript else '',
+            'university_form': university_form.name if university_form else ''
         }
         
-        print(f"[DEBUG] Files received: {list(file_urls.keys())}")
+        print(f"[DEBUG] Files received: {list(file_info.keys())}")
         
-        # Create database record
-        try:
-            registration = StudentRegistration.objects.create(
-                first_name=first_name,
-                middle_name=middle_name,
-                last_name=last_name,
-                religion=religion,
-                phone=phone,
-                email=email,
-                address_iraq=address_iraq,
-                job=job,
-                marital_status=marital_status,
-                children_count=int(children_count) if children_count else None,
-                university_type=university_type,
-                degree=degree,
-                major=major,
-                previous_university=previous_university,
-                bachelor_gpa=bachelor_gpa,
-                master_gpa=master_gpa if master_gpa else None,
-                **file_urls
-            )
-            print(f"[DEBUG] Registration created with ID: {registration.id}")
-        except Exception as db_error:
-            print(f"[ERROR] Database error: {str(db_error)}")
-            return JsonResponse({
-                'success': False,
-                'error': f'خطأ في قاعدة البيانات: {str(db_error)}'
-            }, status=500)
+        # Generate a unique registration ID (timestamp-based)
+        registration_id = f"REG-{datetime.now().strftime('%Y%m%d%H%M%S')}"
         
-        # Send to Google Sheets
-        sheets_error = None
+        # Send directly to Google Sheets (skip database)
         try:
             sheets_service = GoogleSheetsService()
             
             degree_display = 'ماجستير' if degree == 'master' else 'دكتوراه'
             full_name = f"{first_name} {middle_name} {last_name}"
             row_data = [
-                str(registration.id),
+                registration_id,
                 full_name,
                 religion,
                 phone,
@@ -158,34 +131,31 @@ def submit_registration(request):
                 previous_university,
                 bachelor_gpa,
                 master_gpa if master_gpa else '',
-                file_urls.get('passport_url', ''),
-                file_urls.get('transcript_url', ''),
-                file_urls.get('master_transcript_url', ''),
-                file_urls.get('university_form_url', ''),
+                file_info.get('passport', ''),
+                file_info.get('transcript', ''),
+                file_info.get('master_transcript', ''),
+                file_info.get('university_form', ''),
                 datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             ]
             
             row_number = sheets_service.add_row(row_data)
-            registration.google_sheet_row = row_number
-            registration.save()
             
             print(f"[DEBUG] Data added to Google Sheets at row {row_number}")
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'تم إرسال طلبك بنجاح!',
+                'registration_id': registration_id
+            })
+            
         except Exception as sheet_error:
-            sheets_error = str(sheet_error)
-            print(f"[ERROR] Google Sheets error: {sheets_error}")
+            error_msg = str(sheet_error)
+            print(f"[ERROR] Google Sheets error: {error_msg}")
             print(traceback.format_exc())
-        
-        # Return success even if sheets failed
-        response_data = {
-            'success': True,
-            'message': 'تم إرسال طلبك بنجاح!',
-            'registration_id': registration.id
-        }
-        
-        if sheets_error:
-            response_data['warning'] = f'تم حفظ البيانات محلياً ولكن فشل الإرسال إلى Google Sheets: {sheets_error}'
-        
-        return JsonResponse(response_data)
+            return JsonResponse({
+                'success': False,
+                'error': f'خطأ في إرسال البيانات إلى Google Sheets: {error_msg}'
+            }, status=500)
         
     except Exception as e:
         error_msg = str(e)
