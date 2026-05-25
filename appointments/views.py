@@ -17,7 +17,6 @@ def submit_registration(request):
     try:
         # Validate required fields
         required_fields = {
-            'first_name': 'الاسم الأول',
             'middle_name': 'الاسم الثلاثي',
             'last_name': 'اسم العائلة',
             'religion': 'الديانة',
@@ -71,7 +70,7 @@ def submit_registration(request):
             }, status=400)
         
         # Get form data
-        first_name = request.POST.get('first_name', '')
+        first_name = ''  # Removed field
         middle_name = request.POST.get('middle_name', '')
         last_name = request.POST.get('last_name', '')
         religion = request.POST.get('religion', '')
@@ -88,7 +87,7 @@ def submit_registration(request):
         bachelor_gpa = request.POST.get('bachelor_gpa', '')
         master_gpa = request.POST.get('master_gpa', '')
         
-        print(f"[DEBUG] Received data: {first_name} {last_name}, {degree}, {phone}")
+        print(f"[DEBUG] Received data: {middle_name} {last_name}, {degree}, {phone}")
         
         # Get uploaded files
         passport = request.FILES.get('passport')
@@ -114,7 +113,7 @@ def submit_registration(request):
             sheets_service = GoogleSheetsService()
             
             degree_display = 'ماجستير' if degree == 'master' else 'دكتوراه'
-            full_name = f"{first_name} {middle_name} {last_name}"
+            full_name = f"{middle_name} {last_name}"
             row_data = [
                 registration_id,
                 full_name,
