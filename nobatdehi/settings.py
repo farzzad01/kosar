@@ -78,15 +78,34 @@ WSGI_APPLICATION = 'nobatdehi.wsgi.application'
 
 # For Vercel deployment - use Supabase PostgreSQL
 if os.environ.get('VERCEL'):
-    DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://postgres:Kosar@#innocent@db.tdnvngddbookenppbejb.supabase.co:5432/postgres')
-    if DATABASE_URL:
-        DATABASES = {
-            'default': dj_database_url.parse(DATABASE_URL)
-        }
-        DATABASES['default']['CONN_MAX_AGE'] = 600
-        DATABASES['default']['CONN_HEALTH_CHECKS'] = True
-    else:
-        # Fallback to SQLite if no DATABASE_URL
+    try:
+        # Try to parse DATABASE_URL if exists
+        DATABASE_URL = os.environ.get('DATABASE_URL')
+        if DATABASE_URL:
+            DATABASES = {
+                'default': dj_database_url.parse(DATABASE_URL)
+            }
+            DATABASES['default']['CONN_MAX_AGE'] = 600
+            DATABASES['default']['CONN_HEALTH_CHECKS'] = True
+        else:
+            # Manual configuration for Supabase
+            DATABASES = {
+                'default': {
+                    'ENGINE': 'django.db.backends.postgresql',
+                    'NAME': 'postgres',
+                    'USER': 'postgres',
+                    'PASSWORD': 'Kosar@#innocent',
+                    'HOST': 'db.tdnvngddbookenppbejb.supabase.co',
+                    'PORT': '5432',
+                    'CONN_MAX_AGE': 600,
+                    'OPTIONS': {
+                        'sslmode': 'require',
+                    }
+                }
+            }
+    except Exception as e:
+        print(f"Database configuration error: {e}")
+        # Fallback to SQLite
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.sqlite3',
