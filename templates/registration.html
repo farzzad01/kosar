@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -211,8 +212,8 @@
     <div class="max-w-5xl mx-auto">
         <!-- Logo Above Header -->
         <div class="text-center mb-6">
-            <img src="/static/logokosar.jpg" alt="Logo" class="mx-auto h-24 w-auto object-contain" 
-                 onerror="this.onerror=null; this.src='/static/logoo.png';"
+            <img src="{% static 'logokosar.jpg' %}" alt="Logo" class="mx-auto h-24 w-auto object-contain" 
+                 onerror="this.onerror=null; this.src='{% static 'logoo.png' %}';"
                  loading="eager">
         </div>
 
