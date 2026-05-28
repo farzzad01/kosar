@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>استمارة التسجيل - الدراسات العليا</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap');
@@ -12,7 +13,6 @@
         * {
             font-family: 'Tajawal', sans-serif;
         }
-        
         body {
             background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
             min-height: 100vh;
@@ -217,8 +217,20 @@
                      onerror="this.onerror=null; this.src='/static/logoo.png';"
                      loading="eager">
             </div>
+            
+            <!-- Logout button in top left corner -->
+            <div class="absolute top-4 left-4">
+                <a href="{% url 'account_logout' %}" class="bg-white text-gray-700 px-4 py-2 rounded-lg shadow-md hover:bg-gray-100 transition flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                    </svg>
+                    تسجيل الخروج
+                </a>
+            </div>
+            
             <div class="text-center">
                 <h1 class="text-5xl font-bold text-white mb-2">استمارة التسجيل</h1>
+                <p class="text-white/90 text-sm mt-2">مرحباً {{ user_name }}</p>
                 <div class="mt-4 h-1 w-32 bg-white/30 mx-auto rounded"></div>
             </div>
         </div>
@@ -468,6 +480,11 @@
                         </div>
                         <div class="file-preview-container"></div>
                     </div>
+                </div>
+
+                <!-- reCAPTCHA -->
+                <div class="flex justify-center my-6">
+                    <div class="g-recaptcha" data-sitekey="{{ recaptcha_site_key }}"></div>
                 </div>
 
                 <!-- زر الإرسال -->

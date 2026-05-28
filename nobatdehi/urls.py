@@ -24,5 +24,6 @@ admin.site.index_title = "خوش آمدید"
 
 urlpatterns = [
     path('secret-admin-panel-xyz/', admin.site.urls),  # URL سفارشی برای امنیت
+    path('accounts/', include('allauth.urls')),  # Google OAuth
     path('', include('appointments.urls')),
 ]

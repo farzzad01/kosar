@@ -1,20 +1,76 @@
-﻿from django.shortcuts import render
+﻿from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
+from django.contrib.auth.decorators import login_required
+from django.conf import settings
+from django_ratelimit.decorators import ratelimit
 from .models import StudentRegistration
 from .google_sheets_service import GoogleSheetsService
 from datetime import datetime
 import traceback
+import requests
 
+
+def verify_recaptcha(token):
+    """Verify reCAPTCHA token"""
+    if not token:
+        return False
+    
+    try:
+        response = requests.post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            data={
+                'secret': settings.RECAPTCHA_PRIVATE_KEY,
+                'response': token
+            },
+            timeout=5
+        )
+        result = response.json()
+        return result.get('success', False)
+    except Exception as e:
+        print(f"[ERROR] reCAPTCHA verification failed: {str(e)}")
+        return False
+
+
+def home(request):
+    """Home page with login"""
+    if request.user.is_authenticated:
+        return redirect('registration')
+    return render(request, 'home.html')
+
+
+@login_required
 def registration(request):
-    """Registration form page"""
-    return render(request, 'registration.html')
+    """Registration form page - requires login"""
+    return render(request, 'registration.html', {
+        'user_email': request.user.email,
+        'user_name': request.user.get_full_name() or request.user.email,
+        'recaptcha_site_key': settings.RECAPTCHA_PUBLIC_KEY
+    })
 
 
+@login_required
+@ratelimit(key='user', rate='3/h', method='POST')  # 3 submissions per hour per user
 @require_http_methods(["POST"])
 def submit_registration(request):
     """Handle registration form submission - Stateless version for Vercel"""
+    
+    # Check rate limit
+    was_limited = getattr(request, 'limited', False)
+    if was_limited:
+        return JsonResponse({
+            'success': False,
+            'error': 'لقد تجاوزت الحد المسموح من المحاولات. يرجى المحاولة بعد ساعة.'
+        }, status=429)
+    
     try:
+        # Verify reCAPTCHA
+        recaptcha_response = request.POST.get('g-recaptcha-response')
+        if not verify_recaptcha(recaptcha_response):
+            return JsonResponse({
+                'success': False,
+                'error': 'فشل التحقق من reCAPTCHA. يرجى المحاولة مرة أخرى.'
+            }, status=400)
         # Validate required fields
         required_fields = {
             'middle_name': 'الاسم الثلاثي',
