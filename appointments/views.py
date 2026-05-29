@@ -146,16 +146,16 @@ def submit_registration(request):
         master_transcript = request.FILES.get('master_transcript')
         master_certificate = request.FILES.get('master_certificate')
         
-        # Create file info
-        file_info = {
-            'passport': passport.name if passport else '',
-            'personal_photo': personal_photo.name if personal_photo else '',
-            'transcript': transcript.name if transcript else '',
-            'master_transcript': master_transcript.name if master_transcript else '',
-            'master_certificate': master_certificate.name if master_certificate else ''
+        # Prepare files dict for Drive upload
+        files_dict = {
+            'passport': passport,
+            'personal_photo': personal_photo,
+            'transcript': transcript,
+            'master_transcript': master_transcript,
+            'master_certificate': master_certificate
         }
         
-        print(f"[DEBUG] Files received: {list(file_info.keys())}")
+        print(f"[DEBUG] Files received: {list(files_dict.keys())}")
         
         # Generate a unique registration ID (timestamp-based)
         registration_id = f"REG-{datetime.now().strftime('%Y%m%d%H%M%S')}"
@@ -166,6 +166,8 @@ def submit_registration(request):
             
             degree_display = 'ماجستير' if degree == 'master' else 'دكتوراه'
             full_name = f"{middle_name} {last_name}"
+            
+            # Prepare row data with placeholder for file links
             row_data = [
                 registration_id,
                 full_name,
@@ -183,15 +185,16 @@ def submit_registration(request):
                 master_university if master_university else '',
                 bachelor_gpa,
                 master_gpa if master_gpa else '',
-                file_info.get('passport', ''),
-                file_info.get('personal_photo', ''),
-                file_info.get('transcript', ''),
-                file_info.get('master_transcript', ''),
-                file_info.get('master_certificate', ''),
+                passport.name if passport else '',
+                personal_photo.name if personal_photo else '',
+                transcript.name if transcript else '',
+                master_transcript.name if master_transcript else '',
+                master_certificate.name if master_certificate else '',
                 datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             ]
             
-            row_number = sheets_service.add_row(row_data)
+            # Add row with files (will upload to Drive and replace with links)
+            row_number = sheets_service.add_row(row_data, files=files_dict)
             
             print(f"[DEBUG] Data added to Google Sheets at row {row_number}")
             
