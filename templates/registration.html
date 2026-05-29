@@ -220,12 +220,13 @@
 </head>
 <body class="py-8 px-4">
     <div class="max-w-5xl mx-auto">
-        <!-- Logo Above Header -->
-        <div class="logo-container text-center mb-6">
-            <img src="{% static 'assets/logoi.png' %}" 
-                 alt="Logo" 
-                 onerror="this.onerror=null; this.src='{% static 'logoi.png' %}';"
-                 loading="eager">
+        <!-- Header Image -->
+        <div class="mb-8">
+            <img src="/assets/header.png" 
+                 alt="Header" 
+                 class="w-full h-auto rounded-2xl shadow-lg"
+                 style="max-height: 300px; object-fit: cover;"
+                 onerror="this.style.display='none'">
         </div>
 
         <!-- Header -->
