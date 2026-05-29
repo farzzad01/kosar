@@ -77,6 +77,10 @@ class GoogleSheetsService:
             print("[WARNING] Google Drive not initialized, skipping upload")
             return f"[NOT UPLOADED] {filename}"
         
+        if not self.folder_id:
+            print("[WARNING] No folder ID configured, skipping upload")
+            return f"[NO FOLDER] {filename}"
+        
         try:
             print(f"[DEBUG] Starting upload for {filename}")
             
@@ -88,14 +92,13 @@ class GoogleSheetsService:
             
             print(f"[DEBUG] Temp file created: {tmp_path}")
             
-            # Upload to Drive
+            # Upload to Drive with parent folder
             file_metadata = {
                 'title': f"{registration_id}_{filename}",
+                'parents': [{'id': self.folder_id}]  # MUST have parent folder for Service Account
             }
             
-            if self.folder_id:
-                file_metadata['parents'] = [{'id': self.folder_id}]
-                print(f"[DEBUG] Uploading to folder: {self.folder_id}")
+            print(f"[DEBUG] Uploading to folder: {self.folder_id}")
             
             drive_file = self.drive.CreateFile(file_metadata)
             drive_file.SetContentFile(tmp_path)
@@ -126,7 +129,7 @@ class GoogleSheetsService:
             print(f"[ERROR] Failed to upload {filename} to Drive: {str(e)}")
             import traceback
             print(traceback.format_exc())
-            return f"[UPLOAD FAILED] {filename}"
+            return f"[UPLOAD FAILED: {str(e)[:50]}] {filename}"
     
     def setup_headers(self):
         """Setup column headers with RTL layout (right to left)"""
