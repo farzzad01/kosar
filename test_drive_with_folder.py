@@ -3,7 +3,6 @@ Test Google Drive upload with shared folder
 """
 
 import os
-import json
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 from oauth2client.service_account import ServiceAccountCredentials
@@ -13,29 +12,16 @@ def test_drive_with_folder():
     print("Testing Google Drive Upload with Shared Folder")
     print("=" * 60)
     
-    # Load credentials
+    # Configuration
     creds_path = 'decent-destiny-466517-k1-18a0c65a31ea.json'
+    folder_id = '1gACUvgy6Qm29TiRKfOx73DZGzwgru7hD'
     
     if not os.path.exists(creds_path):
         print("❌ Credentials file not found!")
         return False
     
     print("✅ Credentials file found")
-    
-    # Get folder ID from environment or ask user
-    folder_id = os.environ.get('GOOGLE_DRIVE_FOLDER_ID', '')
-    
-    if not folder_id:
-        print("\n⚠️  GOOGLE_DRIVE_FOLDER_ID not set!")
-        print("Please enter your Google Drive Folder ID:")
-        print("(Get it from the folder URL: folders/YOUR_FOLDER_ID)")
-        folder_id = input("Folder ID: ").strip()
-    
-    if not folder_id:
-        print("❌ No folder ID provided!")
-        return False
-    
-    print(f"✅ Using folder ID: {folder_id}")
+    print(f"✅ Folder ID: {folder_id}")
     
     try:
         # Initialize credentials
@@ -54,14 +40,14 @@ def test_drive_with_folder():
         drive = GoogleDrive(gauth)
         print("✅ Google Drive initialized")
         
-        # Try to create a test file in the shared folder
-        print(f"\n📤 Uploading test file to folder {folder_id}...")
+        # Try to create a test file IN THE SHARED FOLDER
+        print(f"\n📁 Uploading to shared folder: {folder_id}")
         
         test_file = drive.CreateFile({
-            'title': 'test_connection.txt',
+            'title': 'test_upload.txt',
             'parents': [{'id': folder_id}]  # Upload to shared folder
         })
-        test_file.SetContentString('This is a test file from Service Account')
+        test_file.SetContentString('This is a test file uploaded to shared folder!')
         test_file.Upload()
         print("✅ Test file uploaded to shared folder")
         
@@ -77,24 +63,18 @@ def test_drive_with_folder():
         file_url = test_file['alternateLink']
         print(f"✅ File URL: {file_url}")
         
-        # Ask if user wants to delete
-        print("\n🗑️  Delete test file? (y/n): ", end='')
-        delete = input().strip().lower()
-        
-        if delete == 'y':
-            test_file.Delete()
-            print("✅ Test file deleted")
-        else:
-            print("ℹ️  Test file kept in Drive")
+        # Don't delete - keep it for verification
+        print("\n⚠️  File NOT deleted - check your Drive folder to verify!")
+        print(f"   Go to: https://drive.google.com/drive/folders/{folder_id}")
         
         print("\n" + "=" * 60)
         print("🎉 SUCCESS! Google Drive upload is working!")
         print("=" * 60)
         print("\n📝 Next steps:")
-        print("1. Add this to Vercel Environment Variables:")
-        print(f"   GOOGLE_DRIVE_FOLDER_ID={folder_id}")
-        print("2. Redeploy your project")
-        print("3. Test file upload from the website")
+        print("1. Check your Google Drive folder to see the test file")
+        print("2. Add GOOGLE_DRIVE_FOLDER_ID to Vercel Environment Variables")
+        print(f"   Value: {folder_id}")
+        print("3. Redeploy your Vercel project")
         return True
         
     except Exception as e:
@@ -104,11 +84,10 @@ def test_drive_with_folder():
         print("\n" + "=" * 60)
         print("❌ FAILED! Check the error above")
         print("=" * 60)
-        print("\n💡 Common issues:")
-        print("1. Folder not shared with Service Account")
-        print("2. Wrong folder ID")
-        print("3. Service Account doesn't have Editor access")
-        print("\n📖 See DRIVE_SETUP_GUIDE.md for detailed instructions")
+        print("\n🔍 Common issues:")
+        print("1. Did you share the folder with the service account email?")
+        print("2. Did you give 'Editor' permission?")
+        print("3. Is the folder ID correct?")
         return False
 
 if __name__ == '__main__':
