@@ -241,7 +241,7 @@ def google_login(request):
     """Redirect to Google OAuth"""
     from urllib.parse import urlencode
     
-    client_id = settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['client_id']
+    client_id = settings.GOOGLE_OAUTH_CLIENT_ID
     redirect_uri = request.build_absolute_uri('/auth/google/callback/')
     
     params = {
@@ -267,8 +267,8 @@ def google_callback(request):
     try:
         # Exchange code for token
         token_url = 'https://oauth2.googleapis.com/token'
-        client_id = settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['client_id']
-        client_secret = settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['secret']
+        client_id = settings.GOOGLE_OAUTH_CLIENT_ID
+        client_secret = settings.GOOGLE_OAUTH_CLIENT_SECRET
         redirect_uri = request.build_absolute_uri('/auth/google/callback/')
         
         token_data = {
@@ -309,7 +309,7 @@ def google_callback(request):
         # Log the user in
         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
         messages.success(request, f'مرحباً {name}!')
-        return redirect('admin:index')
+        return redirect(settings.LOGIN_REDIRECT_URL)
         
     except Exception as e:
         print(f"[ERROR] Google OAuth error: {str(e)}")
