@@ -469,8 +469,8 @@
                         <div class="file-preview-container"></div>
                     </div>
 
-                    <!-- وثيقة الماجستير (للبكالوريوس) -->
-                    <div class="mb-6">
+                    <!-- وثيقة الماجستير (للدكتوراه فقط) -->
+                    <div class="mb-6" id="masterCertificateField" style="display: none;">
                         <label class="block mb-2">وثيقة الماجستير <span class="required">*</span></label>
                         <div class="upload-area rounded-lg p-6 text-center" data-field="master_certificate">
                             <svg class="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -478,7 +478,7 @@
                             </svg>
                             <p class="text-gray-600 font-medium">اضغط أو اسحب الملف هنا</p>
                             <p class="text-sm text-gray-500 mt-1">PDF أو صورة</p>
-                            <input type="file" name="master_certificate" accept="image/*,.pdf" required class="hidden">
+                            <input type="file" name="master_certificate" accept="image/*,.pdf" class="hidden">
                         </div>
                         <div class="file-preview-container"></div>
                     </div>
@@ -535,18 +535,24 @@
             masterTranscriptField.style.display = isPhD ? 'block' : 'none';
             masterUniversityField.style.display = isPhD ? 'block' : 'none';
             
+            const masterCertificateField = document.getElementById('masterCertificateField');
+            masterCertificateField.style.display = isPhD ? 'block' : 'none';
+            
             const masterGpaInput = masterGpaField.querySelector('input');
             const masterTranscriptInput = masterTranscriptField.querySelector('input');
             const masterUniversityInput = masterUniversityField.querySelector('input');
+            const masterCertificateInput = masterCertificateField.querySelector('input');
             
             if (isPhD) {
                 masterGpaInput.setAttribute('required', 'required');
                 masterTranscriptInput.setAttribute('required', 'required');
                 masterUniversityInput.setAttribute('required', 'required');
+                masterCertificateInput.setAttribute('required', 'required');
             } else {
                 masterGpaInput.removeAttribute('required');
                 masterTranscriptInput.removeAttribute('required');
                 masterUniversityInput.removeAttribute('required');
+                masterCertificateInput.removeAttribute('required');
             }
         });
 
