@@ -75,14 +75,18 @@ class GoogleSheetsService:
         """Upload file to Google Drive and return shareable link"""
         if not self.drive:
             print("[WARNING] Google Drive not initialized, skipping upload")
-            return filename
+            return f"[NOT UPLOADED] {filename}"
         
         try:
+            print(f"[DEBUG] Starting upload for {filename}")
+            
             # Create a temporary file
             with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(filename)[1]) as tmp_file:
                 for chunk in file_obj.chunks():
                     tmp_file.write(chunk)
                 tmp_path = tmp_file.name
+            
+            print(f"[DEBUG] Temp file created: {tmp_path}")
             
             # Upload to Drive
             file_metadata = {
@@ -91,10 +95,13 @@ class GoogleSheetsService:
             
             if self.folder_id:
                 file_metadata['parents'] = [{'id': self.folder_id}]
+                print(f"[DEBUG] Uploading to folder: {self.folder_id}")
             
             drive_file = self.drive.CreateFile(file_metadata)
             drive_file.SetContentFile(tmp_path)
             drive_file.Upload()
+            
+            print(f"[DEBUG] File uploaded, setting permissions")
             
             # Make file publicly accessible
             drive_file.InsertPermission({
@@ -107,40 +114,46 @@ class GoogleSheetsService:
             file_url = drive_file['alternateLink']
             
             # Clean up temp file
-            os.unlink(tmp_path)
+            try:
+                os.unlink(tmp_path)
+            except:
+                pass
             
-            print(f"[DEBUG] Uploaded {filename} to Drive: {file_url}")
+            print(f"[DEBUG] Successfully uploaded {filename} to Drive: {file_url}")
             return file_url
             
         except Exception as e:
             print(f"[ERROR] Failed to upload {filename} to Drive: {str(e)}")
-            return filename
+            import traceback
+            print(traceback.format_exc())
+            return f"[UPLOAD FAILED] {filename}"
     
     def setup_headers(self):
-        """Setup column headers with RTL and formatting"""
+        """Setup column headers with RTL layout (right to left)"""
+        # Headers in RTL order (from right to left)
         headers = [
-            'ID',
-            'الاسم الكامل',
-            'الديانة',
-            'رقم الهاتف',
-            'البريد الإلكتروني',
-            'العنوان في العراق',
-            'الوظيفة',
-            'الحالة الاجتماعية',
-            'عدد الأطفال',
-            'نوع الجامعة',
-            'المقطع',
-            'التخصص',
-            'الجامعة السابقة (البكالوريوس)',
-            'الجامعة السابقة (الماجستير)',
-            'معدل البكالوريوس',
-            'معدل الماجستير',
-            'ملف جواز السفر',
-            'ملف صورة الشخص',
-            'ملف كشف درجات البكالوريوس',
-            'ملف كشف درجات الماجستير',
+            'تاريخ التسجيل',
             'ملف وثيقة الماجستير',
-            'تاريخ التسجيل'
+            'ملف كشف درجات الماجستير',
+            'ملف كشف درجات البكالوريوس',
+            'ملف صورة الشخص',
+            'ملف جواز السفر',
+            'معدل الماجستير',
+            'معدل البكالوريوس',
+            'الجامعة السابقة (الماجستير)',
+            'الجامعة السابقة (البكالوريوس)',
+            'التخصص',
+            'المقطع',
+            'نوع الجامعة',
+            'عدد الأطفال',
+            'الحالة الاجتماعية',
+            'الوظيفة',
+            'العنوان في العراق',
+            'البريد الإلكتروني',
+            'رقم الهاتف',
+            'الديانة',
+            'الاسم الكامل',
+            'ID'
         ]
         self.sheet.append_row(headers)
         
@@ -201,6 +214,16 @@ class GoogleSheetsService:
                         },
                         'fields': 'pixelSize'
                     }
+                },
+                # Set sheet to RTL
+                {
+                    'updateSheetProperties': {
+                        'properties': {
+                            'sheetId': self.sheet.id,
+                            'rightToLeft': True
+                        },
+                        'fields': 'rightToLeft'
+                    }
                 }
             ]
             
@@ -212,20 +235,27 @@ class GoogleSheetsService:
             print(f"[WARNING] Could not apply formatting: {str(e)}")
     
     def add_row(self, data, files=None):
-        """Add new row with optional file uploads to Drive"""
+        """Add new row with optional file uploads to Drive (RTL order)"""
+        # Reverse data order for RTL layout
+        rtl_data = list(reversed(data))
+        
         # If files provided, upload them and replace filenames with Drive links
         if files:
-            registration_id = data[0]  # First column is ID
+            registration_id = data[0]  # First column is ID (will be last in RTL)
             
-            # File columns: 16-20 (passport, personal_photo, transcript, master_transcript, master_certificate)
-            file_columns = [16, 17, 18, 19, 20]
+            # In RTL: file columns are at the beginning (reversed)
+            # Original order: [16, 17, 18, 19, 20]
+            # RTL order: [5, 4, 3, 2, 1] (from right)
             file_keys = ['passport', 'personal_photo', 'transcript', 'master_transcript', 'master_certificate']
+            rtl_file_positions = [5, 4, 3, 2, 1]  # Positions in RTL array
             
             for idx, key in enumerate(file_keys):
                 if key in files and files[key]:
                     file_obj = files[key]
+                    print(f"[DEBUG] Uploading {key}: {file_obj.name}")
                     drive_link = self.upload_to_drive(file_obj, file_obj.name, registration_id)
-                    data[file_columns[idx]] = drive_link
+                    rtl_data[rtl_file_positions[idx]] = drive_link
+                    print(f"[DEBUG] Drive link for {key}: {drive_link}")
         
-        self.sheet.append_row(data)
+        self.sheet.append_row(rtl_data)
         return self.sheet.row_count
