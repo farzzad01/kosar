@@ -19,6 +19,16 @@
             min-height: 100vh;
         }
         
+        /* Logo Styles */
+        .logo-container img {
+            max-width: 200px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+        
         .header-section {
             background: linear-gradient(135deg, #d4af37 0%, #c9a961 100%);
             box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
@@ -211,9 +221,10 @@
 <body class="py-8 px-4">
     <div class="max-w-5xl mx-auto">
         <!-- Logo Above Header -->
-        <div class="text-center mb-6">
-            <img src="{% static 'logokosar.jpg' %}" alt="Logo" class="mx-auto h-24 w-auto object-contain" 
-                 onerror="this.onerror=null; this.src='{% static 'logoo.png' %}';"
+        <div class="logo-container text-center mb-6">
+            <img src="{% static 'assets/logoi.png' %}" 
+                 alt="Logo" 
+                 onerror="this.onerror=null; this.src='{% static 'logoi.png' %}';"
                  loading="eager">
         </div>
 
