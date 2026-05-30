@@ -420,7 +420,7 @@
                 <div>
                     <h2 class="section-title text-2xl font-bold">
                         تحميل المستندات المطلوبة
-                        <span class="text-red-600 text-lg mr-4">⚠ يرجى تحميل صور واضحة ومقروءة</span>
+                        <span class="text-red-600 text-lg mr-4">⚠ يرجى تحميل صور واضحة ومقروءة (حجم الملف أقل من 2MB)</span>
                     </h2>
                     
                     <!-- صورة جواز السفر -->
@@ -517,7 +517,7 @@
     <div class="loading-overlay" id="loadingOverlay">
         <div class="text-center">
             <div class="spinner mx-auto mb-4"></div>
-            <p class="text-white text-2xl font-bold">جاري إرسال البيانات...</p>
+            <p class="text-white text-2xl font-bold" id="loadingText">جاري معالجة الملفات...</p>
             <p class="text-white/80 mt-2">يرجى الانتظار</p>
         </div>
     </div>
@@ -647,6 +647,76 @@
             preview.remove();
         }
 
+        // Image compression function
+        async function compressImage(file, maxSizeMB = 0.5) {
+            // If file is PDF, return as is (we'll handle PDFs differently)
+            if (file.type === 'application/pdf') {
+                // Check PDF size
+                const sizeMB = file.size / (1024 * 1024);
+                if (sizeMB > 2) {
+                    throw new Error(`حجم ملف PDF كبير جداً (${sizeMB.toFixed(1)}MB). يرجى استخدام ملف أصغر من 2MB`);
+                }
+                return file;
+            }
+            
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        
+                        // Resize if too large
+                        const maxDimension = 1920;
+                        if (width > maxDimension || height > maxDimension) {
+                            if (width > height) {
+                                height = (height / width) * maxDimension;
+                                width = maxDimension;
+                            } else {
+                                width = (width / height) * maxDimension;
+                                height = maxDimension;
+                            }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Compress with quality adjustment
+                        let quality = 0.7;
+                        canvas.toBlob((blob) => {
+                            const sizeMB = blob.size / (1024 * 1024);
+                            if (sizeMB > maxSizeMB) {
+                                // Try with lower quality
+                                quality = 0.5;
+                                canvas.toBlob((blob2) => {
+                                    const newFile = new File([blob2], file.name, {
+                                        type: 'image/jpeg',
+                                        lastModified: Date.now()
+                                    });
+                                    resolve(newFile);
+                                }, 'image/jpeg', quality);
+                            } else {
+                                const newFile = new File([blob], file.name, {
+                                    type: 'image/jpeg',
+                                    lastModified: Date.now()
+                                });
+                                resolve(newFile);
+                            }
+                        }, 'image/jpeg', quality);
+                    };
+                    img.onerror = reject;
+                };
+                reader.onerror = reject;
+            });
+        }
+
         // Form submission
         const form = document.getElementById('registrationForm');
         const loadingOverlay = document.getElementById('loadingOverlay');
@@ -662,13 +732,41 @@
             
             loadingOverlay.classList.add('active');
             
-            const formData = new FormData(form);
-            formData.set('phone', iti.getNumber());
-            
-            // Get CSRF token
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            
             try {
+                // Compress all image files before sending
+                const formData = new FormData();
+                
+                // Add all text fields
+                for (let [key, value] of new FormData(form).entries()) {
+                    if (!(value instanceof File)) {
+                        formData.append(key, value);
+                    }
+                }
+                
+                // Set phone number
+                formData.set('phone', iti.getNumber());
+                
+                // Compress and add files
+                const fileInputs = form.querySelectorAll('input[type="file"]');
+                for (let input of fileInputs) {
+                    if (input.files.length > 0) {
+                        const file = input.files[0];
+                        try {
+                            const compressedFile = await compressImage(file);
+                            formData.append(input.name, compressedFile);
+                            console.log(`Compressed ${input.name}: ${(file.size / 1024).toFixed(1)}KB -> ${(compressedFile.size / 1024).toFixed(1)}KB`);
+                        } catch (err) {
+                            throw new Error(`خطأ في ضغط الملف ${input.name}: ${err.message}`);
+                        }
+                    }
+                }
+                
+                // Get CSRF token
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                
+                // Update loading text
+                document.getElementById('loadingText').textContent = 'جاري إرسال البيانات...';
+                
                 const response = await fetch('/submit/', {
                     method: 'POST',
                     headers: {

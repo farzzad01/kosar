@@ -4,7 +4,10 @@
     {
       "src": "nobatdehi/wsgi.py",
       "use": "@vercel/python",
-      "config": { "maxLambdaSize": "15mb", "runtime": "python3.9" }
+      "config": { 
+        "maxLambdaSize": "15mb", 
+        "runtime": "python3.9"
+      }
     },
     {
       "src": "assets/**",
@@ -27,5 +30,11 @@
   ],
   "env": {
     "DJANGO_SETTINGS_MODULE": "nobatdehi.settings"
+  },
+  "functions": {
+    "nobatdehi/wsgi.py": {
+      "maxDuration": 60,
+      "memory": 1024
+    }
   }
 }
