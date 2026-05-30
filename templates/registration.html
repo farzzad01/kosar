@@ -216,6 +216,16 @@
             font-size: 16px;
             opacity: 0.95;
         }
+        
+        /* Hide reCAPTCHA test message */
+        .g-recaptcha > div > div {
+            position: relative;
+        }
+        
+        .g-recaptcha iframe {
+            position: relative;
+            z-index: 2;
+        }
     </style>
 </head>
 <body class="py-8 px-4">
@@ -236,7 +246,9 @@
                 <p class="text-1xl text-white/90 mt-3">شركة الكوثر - للخدمات الجامعية</p>
                 <div class="mt-4 h-1 w-32 bg-white/30 mx-auto rounded"></div>
             </div>
-        </div>orm Container -->
+        </div>
+        
+        <!-- Form Container -->
         <div class="form-container p-10">
             <!-- Success Message -->
             <div class="success-message" id="successMessage">
@@ -490,8 +502,6 @@
 
                 <!-- زر الإرسال -->
                 <button type="submit" class="btn-primary w-full text-white font-bold py-4 rounded-xl text-xl">
-                <!-- زر الإرسال -->
-                <button type="submit" class="btn-primary w-full text-white font-bold py-4 rounded-xl text-xl">
                     إرسال الطلب ✓
                 </button>
             </form>
@@ -501,7 +511,9 @@
         <div class="text-center mt-6 text-gray-600">
             <p class="text-sm">سيتم مراجعة طلبك والتواصل معك قريباً</p>
         </div>
-    </div>oading Overlay -->
+    </div>
+    
+    <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="text-center">
             <div class="spinner mx-auto mb-4"></div>
