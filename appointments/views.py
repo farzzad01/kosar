@@ -95,8 +95,7 @@ def submit_registration(request):
         required_files = {
             'passport': 'صورة جواز السفر',
             'personal_photo': 'صورة الشخص',
-            'transcript': 'كشف درجات البكالوريوس',
-            'master_certificate': 'وثيقة الماجستير'
+            'transcript': 'كشف درجات البكالوريوس'
         }
         
         missing_files = []
@@ -109,8 +108,12 @@ def submit_registration(request):
         if degree == 'phd':
             if not request.POST.get('master_gpa'):
                 missing_fields.append('معدل الماجستير')
+            if not request.POST.get('master_university'):
+                missing_fields.append('جامعة الماجستير')
             if not request.FILES.get('master_transcript'):
                 missing_files.append('كشف درجات الماجستير')
+            if not request.FILES.get('master_certificate'):
+                missing_files.append('وثيقة الماجستير')
         
         if missing_files:
             return JsonResponse({
